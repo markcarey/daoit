@@ -3,17 +3,17 @@ const API_URL = process.env.API_URL;
 const PUBLIC_KEY = process.env.PUBLIC_KEY;
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
 
-const appFactoryJSON = require("../artifacts/contracts/DAOit.sol/DAOSuperAppFactory.json");
-const govFactoryJSON = require("../artifacts/contracts/DAOit.sol/DAOGovernanceFactory.json");
+const appFactoryJSON = require("../artifacts/contracts/DAOit.sol/DAOFactory.json");
+//const govFactoryJSON = require("../artifacts/contracts/DAOit.sol/DAOGovernanceFactory.json");
 
-const appFactoryAddress = "0x70E05eDc56E1a98557C8BdEf9dD91b0ce564075A";
-const govFactoryAddress = "0x611CF0318f7A4842Ad9784de9a60f20C9d241F17";
+const appFactoryAddress = "0x8Ed4401f8436d07a74eefB80C8034Acc7d6632E0";
+//const govFactoryAddress = appFactoryAddress;
 
-const daoTokenAddress = "0x7e2E72A126F806b6fe66cABCaBbba9188C4D26cC";
-const superAppAddress = "0x5C720BB452F183ebaa3c1F76d9b36D82D8c9DB9f";
+const daoTokenAddress = "0x5F5D790730687BDd3288b7bb93ac67634bbA0E7e";
+const superAppAddress = "0xdCa41f0a5b5029473d36FE4a5f3F4c0a6a1B93f5";
 
-const governorAddress = "0x80AfD16cd2466FDf2e235d27e18B093E06FAB82f";
-const timelockAddress = "0x9Da5aA9d3A44A4A215a2C4611D7c78ED028DEB37";
+const governorAddress = "0x4c6DAB0DA1e981c046205Cb85B765EA7fb326787";
+const timelockAddress = "0xd22712F5c724056AbFbC6767b30B8cDb437267CC";
 
 
 
@@ -2522,16 +2522,16 @@ const lockABI = [{"anonymous":false,"inputs":[{"indexed":true,"internalType":"ad
 
 
 const signer = new ethers.Wallet(PRIVATE_KEY, ethers.provider);
-let appFactory = new ethers.Contract(
+let daoFactory = new ethers.Contract(
   appFactoryAddress,
   appFactoryJSON.abi,
   signer
 );
-let govFactory = new ethers.Contract(
-  govFactoryAddress,
-  govFactoryJSON.abi,
-  signer
-);
+//let govFactory = new ethers.Contract(
+//  govFactoryAddress,
+//  govFactoryJSON.abi,
+//  signer
+//);
 
 let host = new ethers.Contract(
   addr.SuperHost,
@@ -2548,27 +2548,25 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
- async function createApp(name, symbol, total) {
-  await appFactory.createDAOSuperApp(name, symbol, total);
-  var filter = await appFactory.filters.DAOTokenCreated();
-  appFactory.on(filter, (owner, token, event) => { 
-      console.log("daoToken created at " + token);
+ async function createApp(name, symbol) {
+  await daoFactory.createDAOSuperApp(name, symbol, true, true);
+  var filter = await daoFactory.filters.DAOSuperAppCreated();
+  daoFactory.on(filter, (owner, app, underlying, sToken, event) => { 
+      console.log("superApp created at " + app);
+      console.log("token created at " + underlying);
+      console.log("sToken created at " + sToken);
   });
-  var filter2 = await appFactory.filters.DAOSuperAppCreated();
-  appFactory.on(filter2, (owner, address, event) => { 
-      console.log("superApp created at " + address);
-  });
-  await sleep(10000);
+  await sleep(15000);
 }
 
-async function createGov(token, vetoable) {
-  await govFactory.createGoverance(token, vetoable);
-  var filter = await govFactory.filters.DAOGovernorCreated();
-  govFactory.on(filter, (owner, governor, timelock, event) => { 
+async function createGov(token, vetoable, votingPeriod) {
+  await daoFactory.createGoverance(token, vetoable, votingPeriod);
+  var filter = await daoFactory.filters.DAOGovernorCreated();
+  daoFactory.on(filter, (owner, governor, timelock, event) => { 
       console.log("governor created at " + governor);
       console.log("timelock created at " + timelock);
   });
-  await sleep(10000);
+  await sleep(15000);
 }
 
 
@@ -2594,9 +2592,17 @@ async function getSome(token, eoa) {
   });
 }
 
+async function setNonce() {
+  await hre.network.provider.send("hardhat_setNonce", [
+    PUBLIC_KEY,
+    "0x3C",
+  ]);
+}
 
- //createApp("The App4", "APP", '10000000000000000000000000000')
- createGov(daoTokenAddress, true)
+
+ //createApp("The App9", "APP")
+ createGov(daoTokenAddress, true, 30)
+ //setNonce()
 
  //clone("The Backee", "EEE", '10000000000000000000000000000')
    .then(() => process.exit(0))

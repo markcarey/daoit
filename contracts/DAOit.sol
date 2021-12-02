@@ -42,7 +42,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC777/IERC777Upgradeable.sol"
 import { IERC1820RegistryUpgradeable } from "@openzeppelin/contracts-upgradeable/utils/introspection/IERC1820RegistryUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC777/IERC777RecipientUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20VotesUpgradeable.sol";
+import "./token/DAOToken.sol";
 
 import "@openzeppelin/contracts-upgradeable/governance/TimelockControllerUpgradeable.sol";
 import "./governance/Governor.sol";
@@ -55,8 +55,9 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
 
     ISuperfluid _host;
     IConstantFlowAgreementV1 _cfa;
+    DAOToken public underlying;
     ISuperToken public daoToken;
-    ISuperToken private _acceptedToken; // accepted token
+    ISuperToken private _acceptedToken; // accepted streaming inflow token
    
     mapping(address => int96) flowRates;
 
@@ -64,11 +65,16 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
    
     address admin;
     address treasury;
+    bool depositsEnabled;
+    bool streamsEnabled;
 
     function initialize(
+        address _underlying,
         address _daoToken,
         address owner,
-        address _treasury
+        address _treasury,
+        bool _depositsEnabled,
+        bool _streamsEnabled
     ) public virtual initializer
     {
         require(address(_daoToken) != address(0), "daoToken is zero address");
@@ -110,16 +116,26 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
         _host.registerAppByFactory(ISuperApp(address(this)), configWord);
 
         daoToken = ISuperToken(_daoToken);
+        underlying = DAOToken(_underlying);
         admin = owner;
         treasury = _treasury;
 
+        streamsEnabled = _streamsEnabled;
+        depositsEnabled = _depositsEnabled;
+
+        // upgrade half of supply
+        //uint256 amt = underlying.balanceOf(address(this)).div(2); 
+        //if (amt > 0) {
+        //    underlying.approve(address(daoToken), amt);
+        //    daoToken.upgrade(amt);
+        //}
+
         //Access Control
-        console.log("before any role granting");
-        //_setupRole(DEFAULT_ADMIN_ROLE, address(this));
-        console.log("before grant default to admin");
-        _setupRole(DEFAULT_ADMIN_ROLE, admin);
+        console.log("before grant default to treasury");
+        _setupRole(DEFAULT_ADMIN_ROLE, treasury);
         console.log("after granting DEFAULT admin role");
         _setupRole(MANAGER, admin);
+        _setupRole(MANAGER, treasury);
 
         // TODO: change this:
         _acceptedToken = ISuperToken(0x745861AeD1EEe363b4AaA5F1994Be40b1e05Ff90); // Rinkeby fDAIx used by Superfluid
@@ -136,11 +152,40 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
         return address(_acceptedToken);
     }
 
+    /// @dev Gelato resolver for updateReserves()
+    function needReserves() external view returns(bool canExec, bytes memory execPayload) {
+        int96 daoOutFlow = getDaoTokenNetFlow() * -1;
+        uint256 currentReserves = daoToken.balanceOf(address(this));
+        uint256 minReserves = uint256(uint96(daoOutFlow)).mul(2419200); // 28 days
+        if ( currentReserves < minReserves ) {
+            canExec = true;
+            execPayload = abi.encodeWithSelector(this.updateReserves.selector);
+        }
+    }
+
+    function updateReserves() external returns (uint256) {
+        return _updateReserves(0);
+    }
+
+    function _updateReserves(int96 daoTokenFlowRate) internal returns (uint256) {
+        int96 daoOutFlow = (getDaoTokenNetFlow() - daoTokenFlowRate) * -1;
+        uint256 currentReserves = daoToken.balanceOf(address(this));
+        uint256 minReserves = uint256(uint96(daoOutFlow)).mul(2419200); // 28 days
+        if ( currentReserves < minReserves ) {
+            uint256 newReserves = uint256(uint96(daoOutFlow)).mul(3024000); // 35 days
+            uint256 amt = newReserves.sub(currentReserves);
+            underlying.mint(address(this), amt);
+            daoToken.upgrade(amt);
+        }
+        return daoToken.balanceOf(address(this));
+    }
+
     function sharePrice() external returns (uint256) {
         return this.totalSupply().mul(100).div(_acceptedToken.balanceOf(treasury));
     }
 
     function deposit(uint _amount) public nonReentrant {
+        require(depositsEnabled, "Deposits Disabled");
         uint256 _pool = _acceptedToken.balanceOf(treasury);
         _acceptedToken.transferFrom(msg.sender, address(this), _amount);
         _acceptedToken.transfer(treasury, _amount);
@@ -152,7 +197,7 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
         } else {
             shares = (_amount.mul(this.totalSupply())).div(_pool);
         }
-        daoToken.transfer(msg.sender, shares);
+        underlying.mint(msg.sender, shares);
     }
 
     // these functions can be used to move tokens / ETH to the treasury
@@ -166,11 +211,11 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
 
     function grant(address to, uint256 amount) external onlyRole(MANAGER) {
         // grants daoTokens to an address
-        uint256 balance = daoToken.balanceOf(address(this));
+        uint256 balance = underlying.balanceOf(address(this));
         if ( amount > balance) {
             amount = balance;
         }
-        daoToken.transfer(to, amount);
+        underlying.mint(to, amount);
     }
 
     /**************************************************************************
@@ -191,6 +236,7 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
       if (multiplier != 0) {
           daoTokenFlowRate = int96(int256( uint256(uint96(inFlowRate)).mul(multiplier).div(100) ));
       }
+      _updateReserves(daoTokenFlowRate);
 
       if ( (daoTokenFlowRate != int96(0)) && (inFlowRate != int96(0)) ){
         // @dev if there already exists an outflow, then update it.
@@ -290,6 +336,7 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
         external override
         onlyExpected(_superToken, _agreementClass)
         onlyHost
+        onlyIfStreamsEnabled
         returns (bytes memory newCtx)
     {
         address customer = _host.decodeCtx(_ctx).msgSender;
@@ -308,6 +355,7 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
         external override
         onlyExpected(_superToken, _agreementClass)
         onlyHost
+        onlyIfStreamsEnabled
         returns (bytes memory newCtx)
     {
         console.log("start afterAgreementUpdated");
@@ -327,6 +375,7 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
     {
         console.log("start afterAgreementTerminated");
         // According to the app basic law, we should never revert in a termination callback
+        if (!streamsEnabled) return _ctx;
         if (!_isSameToken(_superToken) || !_isCFAv1(_agreementClass)) return _ctx;
         if (msg.sender != address(_host)) return _ctx;
         (address customer,) = abi.decode(_agreementData, (address, address));
@@ -337,6 +386,9 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
     }
     function getNetFlow() public view returns (int96) {
        return _cfa.getNetFlow(_acceptedToken, address(this));
+    }
+    function getDaoTokenNetFlow() public view returns (int96) {
+       return _cfa.getNetFlow(daoToken, address(this));
     }
     function _isSameToken(ISuperToken superToken) private view returns (bool) {
         return address(superToken) == address(_acceptedToken);
@@ -352,6 +404,11 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
     modifier onlyExpected(ISuperToken superToken, address agreementClass) {
         require(_isSameToken(superToken), "SuperApp: not accepted token");
         require(_isCFAv1(agreementClass), "SuperApp: only CFAv1 supported");
+        _;
+    }
+
+    modifier onlyIfStreamsEnabled() {
+        require(streamsEnabled, "SuperApp: streams disabled");
         _;
     }
 
@@ -380,8 +437,11 @@ contract DAOExecutor is TimelockControllerUpgradeable {
 }
 
 
-contract DAOSuperAppFactory {
+contract DAOFactory {
     address immutable superAppImplementation;
+    address immutable tokenImplementation;
+    address immutable governorImplementation;
+    address immutable timelockImplementation;
     address owner;
 
     ISuperTokenFactory private _superTokenFactory;
@@ -389,61 +449,47 @@ contract DAOSuperAppFactory {
     constructor() public {
         _superTokenFactory = ISuperTokenFactory(0xd465e36e607d493cd4CC1e83bea275712BECd5E0); // Rinkeby
         superAppImplementation = address(new DAOSuperApp());
+        tokenImplementation = address(new DAOToken());
+        governorImplementation = address(new DAOGovernor());
+        timelockImplementation = address(new DAOExecutor());
         owner = msg.sender;
     }
 
     event DAOSuperAppCreated(
         address indexed _owner,
-        address _contract
+        address superApp,
+        address underlying,
+        address superToken
     );
 
-    event DAOTokenCreated(
-        address indexed _owner,
-        address _contract
-    );
-
-    function createDAOSuperApp(string memory name, string calldata symbol, uint256 supply) external returns (address) {
+    function createDAOSuperApp(string memory name, string calldata symbol, bool enableDeposits, bool enableStreams) external returns (address) {
         console.log(block.timestamp);
         // step 1: create super token
-        INativeSuperToken daoToken = INativeSuperToken(address(new NativeSuperTokenProxy()));
+        //INativeSuperToken daoToken = INativeSuperToken(address(new NativeSuperTokenProxy()));
         bytes32 salt = keccak256(abi.encodePacked(name, symbol));
         console.logBytes32(salt);
         //INativeSuperToken daoToken = INativeSuperToken(address(Create2.deploy(0, salt, type(NativeSuperTokenProxy).creationCode)));
+        DAOToken daoToken = DAOToken(address(Clones.cloneDeterministic(tokenImplementation, salt)));
         console.log("daoToken", address(daoToken));
-        // step 2: create super app
+        // step 2: create Super wrapper:
+        //ISuperToken superDaoToken = _superTokenFactory.createERC20Wrapper(daoToken, Upgradability.FULL_UPGRADABE, abi.encodePacked("Super ", name), abi.encodePacked(symbol, "x"));
+        ISuperToken superDaoToken = _superTokenFactory.createERC20Wrapper(IERC20(address(daoToken)), uint8(18), ISuperTokenFactory.Upgradability.FULL_UPGRADABE, string(abi.encodePacked("Super ", name)), string(abi.encodePacked(symbol, "x")));
+        // step 3: create super app
         address superApp = Clones.cloneDeterministic(superAppImplementation, salt);
         console.log("supr app", address(superApp));
-        // step 3: initialize superApp
-        DAOSuperApp(superApp).initialize(address(daoToken), msg.sender, address(this));
-        console.log("after superApp init");
-        // step 4: Set the proxy to use the Super Token logic managed by Superfluid Protocol Governance
-        _superTokenFactory.initializeCustomSuperToken(address(daoToken));
-        console.log("after supertokenfatcory init");
-        // step 5: initialize dao token
+        // step 4: initialize dao token
         daoToken.initialize(
             name,
             symbol,
-            supply,
             address(superApp)
         );
         console.log("after daoToken init");
-
-        emit DAOTokenCreated(msg.sender, address(daoToken));
-        emit DAOSuperAppCreated(msg.sender, address(superApp));
+        // step 4: initialize superApp
+        address futureTimelock = Clones.predictDeterministicAddress(timelockImplementation, keccak256(abi.encodePacked(address(daoToken))), msg.sender);
+        DAOSuperApp(superApp).initialize(address(daoToken), address(superDaoToken), msg.sender, futureTimelock, enableDeposits, enableStreams);
+        console.log("after superApp init");
+        emit DAOSuperAppCreated(msg.sender, address(superApp), address(daoToken), address(superDaoToken));
         return superApp;
-    }
-
-}
-
-contract DAOGovernanceFactory {
-    address owner;
-    address immutable governorImplementation;
-    address immutable timelockImplementation;
-
-    constructor() public {
-        owner = msg.sender;
-        governorImplementation = address(new DAOGovernor());
-        timelockImplementation = address(new DAOExecutor());
     }
 
     event DAOGovernorCreated(
@@ -452,7 +498,7 @@ contract DAOGovernanceFactory {
         address _timelock
     );
 
-    function createGoverance(address token, bool vetoable) external returns(address) {
+    function createGoverance(address token, bool vetoable, uint256 votingPeriod) external returns(address) {
         //address timelock = new TimelockControllerUpgradeable();
         bytes32 salt = keccak256(abi.encodePacked(token));
         console.logBytes32(salt);
@@ -470,10 +516,10 @@ contract DAOGovernanceFactory {
             proposers[1] = msg.sender;
         }
         address[] memory executors = new address[](1);
-        executors[0] = msg.sender;
-        governor.initialize(ERC20VotesUpgradeable(token), timelock);
+        executors[0] = address(0); // anyone can execute if proposal succeeded and ready
+        governor.initialize(ERC20VotesUpgradeable(token), timelock, votingPeriod);
         governor.transferOwnership(msg.sender);
-        timelock.initialize(1, proposers, executors);
+        timelock.initialize(60*30, proposers, executors); // TODO: change delay to variable
         emit DAOGovernorCreated(msg.sender, address(governor), address(timelock));
         return address(governor);
     }

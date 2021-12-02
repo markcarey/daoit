@@ -15,11 +15,11 @@ contract DAOGovernor is Initializable, GovernorUpgradeable, GovernorSettingsUpgr
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() initializer {}
 
-    function initialize(ERC20VotesUpgradeable _token, TimelockControllerUpgradeable _timelock)
+    function initialize(ERC20VotesUpgradeable _token, TimelockControllerUpgradeable _timelock, uint256 _votingPeriod)
         initializer public
     {
         __Governor_init("DAOGovernor");
-        __GovernorSettings_init(1 /* 1 block */, 45818 /* 1 week */, 0);
+        __GovernorSettings_init(1 /* 1 block */, _votingPeriod, 0);
         __GovernorCountingSimple_init();
         __GovernorVotes_init(_token);
         __GovernorVotesQuorumFraction_init(4);

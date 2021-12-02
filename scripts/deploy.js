@@ -1,5 +1,5 @@
 async function main() {
-    const tokenContract = await ethers.getContractFactory("NativeSuperTokenProxy");
+    const tokenContract = await ethers.getContractFactory("DAOToken");
     const token = await tokenContract.deploy();
     console.log("token deployed to address:", token.address);
     const appContract = await ethers.getContractFactory("DAOSuperApp");
@@ -13,12 +13,12 @@ async function main() {
     console.log("exec deployed to address:", exec.address);
 
 
-    const appFactoryContract = await ethers.getContractFactory("DAOSuperAppFactory");
+    const appFactoryContract = await ethers.getContractFactory("DAOFactory");
     const appFactory = await appFactoryContract.deploy();
     console.log("appFactory deployed to address:", appFactory.address);
-    const govFactoryContract = await ethers.getContractFactory("DAOGovernanceFactory");
-    const govFactory = await govFactoryContract.deploy();
-    console.log("govFactory deployed to address:", govFactory.address);
+    //const govFactoryContract = await ethers.getContractFactory("DAOGovernanceFactory");
+    //const govFactory = await govFactoryContract.deploy();
+    //console.log("govFactory deployed to address:", govFactory.address);
  }
  
  main()
