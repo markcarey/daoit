@@ -3,7 +3,7 @@
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0"/>
-  <title>DAOit</title>
+  <title>DAOit - Easy DAO Creation</title>
   <link rel="shorcut icon" type="image/png" href="/images/daoit128.png">
   <link rel="apple-touch-icon" href="/images/daoit.png">
   <link rel="manifest" href="/manifest.json">
@@ -12,29 +12,41 @@
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <link href="css/materialize.css" type="text/css" rel="stylesheet" media="screen,projection"/>
   <link href="css/style.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+  <style>
+    code {
+      padding: 2px 3px 1px;
+      border: 1px solid var(--saf-0);
+      border-radius: 3px;
+      background-color: rgba(var(--sk_foreground_min,29,28,29),.04);
+      color: #e01e5a;
+    }
+  </style>
 </head>
 <body>
   <nav class="blue darken-4" role="navigation">
-    <div class="nav-wrapper container"><a id="logo-container" href="#" class="brand-logo"><img src="/images/daoit128.png" style="height: 64px;" /></a>
+    <div class="nav-wrapper container">
+      <a id="logo-container" href="/" class="brand-logo"><img src="/images/daoit128.png" style="height: 64px;" /></a>
+      <span class="badge chain white text-blue text-darken-4" data-badge-caption="">Rinkeby</span>
       <ul class="right hide-on-med-and-down">
-        <li><a href="#">Navbar Link</a></li>
+        <li><a href="#" class="connect"><img /><span>Connect</span></a></li>
       </ul>
 
       <ul id="nav-mobile" class="sidenav">
-        <li><a href="#">Navbar Link</a></li>
+        <li><a href="#" class="connect"><img /><span>Connect</span></a></li>
       </ul>
       <a href="#" data-target="nav-mobile" class="sidenav-trigger"><i class="material-icons">menu</i></a>
     </div>
   </nav>
-  <div class="section no-pad-bot" id="index-banner">
+
+  <div class="section no-pad-bot welcome" id="index-banner">
     <div class="container">
       <br><br>
-      <h1 class="header center blue-text darken-4">Just DAO it</h1>
+      <h1 class="header center blue-text text-darken-4">Just DAO it</h1>
       <div class="row center">
         <h5 class="header col s12 light">Easy as X-Y-Z</h5>
       </div>
       <div class="row center">
-        <a href="#" id="start-button" class="btn-large waves-effect waves-light blue darken-4">Get Started</a>
+        <a href="#" id="start-button" class="btn-large waves-effect waves-light blue darken-4 connect">Connect Wallet</a>
       </div>
       <br><br>
 
@@ -42,35 +54,35 @@
   </div>
 
 
-  <div class="container">
-    <div class="section">
+  <div class="container welcome">
+    <div class="section welcome">
 
       <!--   Icon Section   -->
       <div class="row">
         <div class="col s12 m4">
           <div class="icon-block">
-            <h2 class="center light-blue-text"><i class="material-icons">flash_on</i></h2>
-            <h5 class="center">Speeds up development</h5>
+            <h2 class="center blue-text text-darken-4"><i class="material-icons">flash_on</i></h2>
+            <h5 class="center">Easy DAO Creation</h5>
 
-            <p class="light">We did most of the heavy lifting for you to provide a default stylings that incorporate our custom components. Additionally, we refined animations and transitions to provide a smoother experience for developers.</p>
+            <p class="light">Launch a DAO in minutes. No coding required.</p>
           </div>
         </div>
 
         <div class="col s12 m4">
           <div class="icon-block">
-            <h2 class="center light-blue-text"><i class="material-icons">group</i></h2>
-            <h5 class="center">User Experience Focused</h5>
+            <h2 class="center blue-text text-darken-4"><i class="material-icons">zoom_out_map</i></h2>
+            <h5 class="center">Distribution Options</h5>
 
-            <p class="light">By utilizing elements and principles of Material Design, we were able to create a framework that incorporates components and animations that provide more feedback to users. Additionally, a single underlying responsive system across all platforms allow for a more unified user experience.</p>
+            <p class="light">3 ways to distribute governance token: deposits, streams, and grants</p>
           </div>
         </div>
 
         <div class="col s12 m4">
           <div class="icon-block">
-            <h2 class="center light-blue-text"><i class="material-icons">settings</i></h2>
-            <h5 class="center">Easy to work with</h5>
+            <h2 class="center blue-text text-darken-4"><i class="material-icons">assignment_turned_in</i></h2>
+            <h5 class="center">Proposals & Voting</h5>
 
-            <p class="light">We have provided detailed documentation as well as specific code examples to help new users get started. We are also always open to feedback and can answer any questions a user may have about Materialize.</p>
+            <p class="light">Compatible with DAO goverance tools like Tally.</p>
           </div>
         </div>
       </div>
@@ -79,31 +91,91 @@
     <br><br>
   </div>
 
+
+  <div id="token-card" class="container section">
+    <div class="row card-panel">
+      <h4>Create Token<span class="new badge chain" data-badge-caption="">Rinkeby</span></h3>
+      <form class="col s12">
+        <div class="row">
+          <div class="input-field col s12">
+            <input value="" placeholder="My Goverance Token" id="tokenName" type="text" class="validate">
+            <label for="tokenName">Token Name</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="input-field col s12">
+            <input value="" placeholder="SMBL" id="tokenSymbol" type="text" class="validate">
+            <label for="tokenSymbol">Token Symbol</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="input-field col s12">
+            <select id="tokenAccepted">
+              <option value="fDAIx">fDAI</option>
+              <option value="fUSDCx">fUSDC</option>
+              <option value="WETHx">WETH</option>
+            </select>
+            <label for="tokenAccepted">Accepted Token for Deposits</label>
+          </div>
+        </div>
+        <a id="create-token" class="waves-effect waves-light btn blue darken-4">Next</a>
+      </form>
+    </div>
+  </div>
+
+  <div id="gov-card" class="container section">
+    <div class="row card-panel">
+      <h4>Create Governance<span class="new badge chain" data-badge-caption="">Rinkeby</span></h3>
+      <form class="col s12">
+        <div class="row">
+          <div class="input-field col s12">
+            <input value="" placeholder="45818" id="govVotingPeriod" type="text" class="validate">
+            <label for="govVotingPeriod">Voting Period (45818 blocks ≈ 1 week)</label>
+          </div>
+        </div>
+        <div class="row">
+          <div class="input-field col s12">
+            <div class="switch">
+              <label>
+                <input id="govVetoable" type="checkbox">
+                <span class="lever" style="margin-left: 0px;"></span>
+                Enable veto power for deployer? (can be renounced later)
+              </label>
+            </div>
+          </div>
+        </div>
+        <a id="create-gov" class="waves-effect waves-light btn blue darken-4">Create Governance</a>
+      </form>
+    </div>
+  </div>
+
+  <div id="details-card" class="container section">
+
+  </div>
+
+
+
+
   <footer class="page-footer light-blue darken-1">
     <div class="container">
       <div class="row">
         <div class="col l6 s12">
-          <h5 class="white-text">Company Bio</h5>
-          <p class="grey-text text-lighten-4">We are a team of college students working on this project like it's our full time job. Any amount would help support and continue development on this project and is greatly appreciated.</p>
+          <h5 class="white-text">About DAOit</h5>
+          <p class="grey-text text-lighten-4">DAO it is an easy-to-use, no-code tool for creating a DAO in minutes.</p>
 
 
         </div>
         <div class="col l3 s12">
-          <h5 class="white-text">Settings</h5>
+          <h5 class="white-text">Powered By</h5>
           <ul>
-            <li><a class="white-text" href="#!">Link 1</a></li>
-            <li><a class="white-text" href="#!">Link 2</a></li>
-            <li><a class="white-text" href="#!">Link 3</a></li>
-            <li><a class="white-text" href="#!">Link 4</a></li>
+            <li><a class="white-text" target="_blank" href="https://docs.openzeppelin.com/contracts/4.x/governance">Open Zeppelin Governance</a></li>
+            <li><a class="white-text" target="_blank" href="https://www.superfluid.finance/">Superfluid</a></li>
           </ul>
         </div>
         <div class="col l3 s12">
-          <h5 class="white-text">Connect</h5>
+          <h5 class="white-text">Works With</h5>
           <ul>
-            <li><a class="white-text" href="#!">Link 1</a></li>
-            <li><a class="white-text" href="#!">Link 2</a></li>
-            <li><a class="white-text" href="#!">Link 3</a></li>
-            <li><a class="white-text" href="#!">Link 4</a></li>
+            <li><a class="white-text" target="_blank" href="https://withtally.com">Tally</a></li>
           </ul>
         </div>
       </div>
@@ -120,6 +192,12 @@
   <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
   <script src="js/materialize.js"></script>
   <script src="js/init.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@alch/alchemy-web3@latest/dist/alchemyWeb3.min.js"></script>
+  <script src="https://cdn.ethers.io/lib/ethers-5.1.umd.min.js" type="text/javascript"></script>    
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+  <script src="js/abis.js?v=1"></script>
+  <script src="js/dapp.js?v=1"></script>
 
   </body>
 </html>

@@ -65,8 +65,8 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
    
     address admin;
     address treasury;
-    bool depositsEnabled;
-    bool streamsEnabled;
+    bool public depositsEnabled;
+    bool public streamsEnabled;
 
     function initialize(
         address _underlying,
@@ -74,7 +74,8 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
         address owner,
         address _treasury,
         bool _depositsEnabled,
-        bool _streamsEnabled
+        bool _streamsEnabled,
+        address accepted
     ) public virtual initializer
     {
         require(address(_daoToken) != address(0), "daoToken is zero address");
@@ -129,6 +130,7 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
         //    underlying.approve(address(daoToken), amt);
         //    daoToken.upgrade(amt);
         //}
+        underlying.approve(address(daoToken), type(uint256).max);
 
         //Access Control
         console.log("before grant default to treasury");
@@ -137,19 +139,34 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
         _setupRole(MANAGER, admin);
         _setupRole(MANAGER, treasury);
 
-        // TODO: change this:
-        _acceptedToken = ISuperToken(0x745861AeD1EEe363b4AaA5F1994Be40b1e05Ff90); // Rinkeby fDAIx used by Superfluid
+        // super token accepted for streams
+        _acceptedToken = ISuperToken(accepted);
 
     }
 
-    function totalSupply() external returns (uint256) {
-        uint total = daoToken.totalSupply();
+    function totalSupply() external view returns (uint256) {
+        uint256 total = underlying.totalSupply();
         uint256 bal = daoToken.balanceOf(address(this));
         return total.sub(bal);
     }
 
-    function acceptedToken() external returns (address) {
+    function acceptedToken() external view returns (address) {
         return address(_acceptedToken);
+    }
+
+    function treasuryBalance() external view returns (uint256) {
+        uint256 sTotal = _acceptedToken.balanceOf(treasury);
+        console.log("sTotal", sTotal);
+        address tokenAddress = _acceptedToken.getUnderlyingToken();
+        console.log("tokenAddress", tokenAddress);
+        if ( tokenAddress == address(0) ) {
+            tokenAddress = wethAddress();
+        }
+        console.log("tokenAddress", tokenAddress);
+        IERC20 token = IERC20(tokenAddress);
+        uint256 uTotal = token.balanceOf(treasury);
+        console.log("uTotal", uTotal);
+        return sTotal.add(uTotal);
     }
 
     /// @dev Gelato resolver for updateReserves()
@@ -170,26 +187,65 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
     function _updateReserves(int96 daoTokenFlowRate) internal returns (uint256) {
         int96 daoOutFlow = (getDaoTokenNetFlow() - daoTokenFlowRate) * -1;
         uint256 currentReserves = daoToken.balanceOf(address(this));
+        console.log("currentReserves", currentReserves);
         uint256 minReserves = uint256(uint96(daoOutFlow)).mul(2419200); // 28 days
+        console.log("minReserves", minReserves);
         if ( currentReserves < minReserves ) {
             uint256 newReserves = uint256(uint96(daoOutFlow)).mul(3024000); // 35 days
+            console.log("newReserves", newReserves);
             uint256 amt = newReserves.sub(currentReserves);
+            console.log("amt to mint", amt);
             underlying.mint(address(this), amt);
             daoToken.upgrade(amt);
         }
-        return daoToken.balanceOf(address(this));
+        currentReserves = daoToken.balanceOf(address(this));
+        console.log("currentReserves", currentReserves);
+        return currentReserves;
     }
 
-    function sharePrice() external returns (uint256) {
-        return this.totalSupply().mul(100).div(_acceptedToken.balanceOf(treasury));
+    function sharePrice() external view returns (uint256) {
+        uint256 supply = this.totalSupply();
+        if ( supply == 0 ) return 100;
+        console.log("supply", supply);
+        uint256 treasuryBal = this.treasuryBalance();
+        if ( treasuryBal == 0 ) return 100;
+        console.log("treasuryBal", treasuryBal);
+        return supply.mul(100).div(treasuryBal);
     }
 
-    function deposit(uint _amount) public nonReentrant {
+    function wethAddress() internal view returns(address) {
+        address weth;
+        if ( block.chainid == 4 || block.chainid == 31337 ) {
+            weth = 0xc778417E063141139Fce010982780140Aa0cD5Ab;
+        }
+        if ( block.chainid == 137 ) {
+            weth = 0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619;
+        }
+        if ( block.chainid == 80001 ) {
+            weth = 0x3C68CE8504087f89c640D02d133646d98e64ddd9;
+        }
+        if ( block.chainid == 1 ) {
+            weth = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
+        }
+        if ( block.chainid == 42 ) {
+            weth = 0xd0A1E359811322d97991E03f863a0C30C2cF029C;
+        }
+        return weth;
+    }
+
+    function deposit(uint _amount, address beneficiary) public nonReentrant {
         require(depositsEnabled, "Deposits Disabled");
-        uint256 _pool = _acceptedToken.balanceOf(treasury);
-        _acceptedToken.transferFrom(msg.sender, address(this), _amount);
-        _acceptedToken.transfer(treasury, _amount);
-        uint256 _after = _acceptedToken.balanceOf(treasury);
+        uint256 _pool = this.treasuryBalance();
+        console.log("_pool", _pool);
+        address tokenAddress = _acceptedToken.getUnderlyingToken();
+        if ( tokenAddress == address(0) ) {
+            tokenAddress = wethAddress();
+        }
+        IERC20 token = IERC20(tokenAddress);
+        token.transferFrom(msg.sender, address(this), _amount);
+        token.transfer(treasury, _amount);
+        uint256 _after = this.treasuryBalance();
+        console.log("before, after", _pool, _after);
         _amount = _after.sub(_pool); // Additional check for deflationary tokens
         uint256 shares = 0;
         if (this.totalSupply() == 0) {
@@ -197,12 +253,16 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
         } else {
             shares = (_amount.mul(this.totalSupply())).div(_pool);
         }
-        underlying.mint(msg.sender, shares);
+        console.log("deposit.shares", shares);
+        if ( beneficiary == address(0) ) {
+            beneficiary = msg.sender;
+        }
+        underlying.mint(beneficiary, shares);
     }
 
     // these functions can be used to move tokens / ETH to the treasury
     function withdrawToken(address _tokenContract) external {
-        IERC20Upgradeable tokenContract = IERC20Upgradeable(_tokenContract);
+        IERC20 tokenContract = IERC20(_tokenContract);
         tokenContract.transfer(treasury, tokenContract.balanceOf(address(this)) );
     }
     function withdrawETH() external payable {
@@ -211,11 +271,14 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
 
     function grant(address to, uint256 amount) external onlyRole(MANAGER) {
         // grants daoTokens to an address
-        uint256 balance = underlying.balanceOf(address(this));
-        if ( amount > balance) {
-            amount = balance;
-        }
         underlying.mint(to, amount);
+    }
+
+    function setDepositsEnabled(bool _depositsEnabled) external onlyRole(MANAGER) {
+        depositsEnabled = _depositsEnabled;
+    }
+    function setStreamsEnabled(bool _streamsEnabled) external onlyRole(MANAGER) {
+        streamsEnabled = _streamsEnabled;
     }
 
     /**************************************************************************
@@ -233,33 +296,43 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
       if (inFlowRate < 0 ) inFlowRate = -inFlowRate; // Fixes issue when inFlowRate is negative
 
       uint256 multiplier = this.sharePrice();
+      int96 newDaoTokenFlowRate = daoTokenFlowRate;
+      console.log("multiplier (sharePrice)", multiplier);
       if (multiplier != 0) {
-          daoTokenFlowRate = int96(int256( uint256(uint96(inFlowRate)).mul(multiplier).div(100) ));
+          newDaoTokenFlowRate = int96(int256( uint256(uint96(inFlowRate)).mul(multiplier).div(100) ));
       }
-      _updateReserves(daoTokenFlowRate);
+      console.log("inFlowRate,daoTokenFlowRate,newDaoTokenFlowRate,treasuryFlowRate");
+      console.logInt(inFlowRate);
+      console.logInt(daoTokenFlowRate);
+      console.logInt(newDaoTokenFlowRate);
+      console.logInt(treasuryFlowRate);
+
+      _updateReserves(newDaoTokenFlowRate);
 
       if ( (daoTokenFlowRate != int96(0)) && (inFlowRate != int96(0)) ){
         // @dev if there already exists an outflow, then update it.
+        console.log("dao token flow exists and inFlow exists");
         (newCtx, ) = _host.callAgreementWithContext(
             _cfa,
             abi.encodeWithSelector(
                 _cfa.updateFlow.selector,
                 daoToken,
                 customer,
-                daoTokenFlowRate,
+                newDaoTokenFlowRate,
                 new bytes(0) // placeholder
             ),
             "0x",
             newCtx
         );
         // @dev Update the outflow to treasury.
+        console.log("now increase treasury flow + inFlowRate");
         (newCtx, ) = _host.callAgreementWithContext(
             _cfa,
             abi.encodeWithSelector(
                 _cfa.updateFlow.selector,
                 _acceptedToken,
                 treasury,
-                treasuryFlowRate + inFlowRate,
+                treasuryFlowRate + (inFlowRate - flowRates[customer]),
                 new bytes(0) // placeholder
             ),
             "0x",
@@ -300,25 +373,42 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
                   _cfa.createFlow.selector,
                   daoToken,
                   customer,
-                  daoTokenFlowRate,
+                  newDaoTokenFlowRate,
                   new bytes(0) // placeholder
               ),
               "0x",
               newCtx
           );
-          // @dev If there is no existing outflow, then redirect to treasury
-          (newCtx, ) = _host.callAgreementWithContext(
-              _cfa,
-              abi.encodeWithSelector(
-                  _cfa.createFlow.selector,
-                  _acceptedToken,
-                  treasury,
-                  inFlowRate,
-                  new bytes(0) // placeholder
-              ),
-              "0x",
-              newCtx
-          );
+          
+          if ( treasuryFlowRate == int96(0) ) {
+            // @dev If there is no existing outflow, then redirect to treasury
+            (newCtx, ) = _host.callAgreementWithContext(
+                _cfa,
+                abi.encodeWithSelector(
+                    _cfa.createFlow.selector,
+                    _acceptedToken,
+                    treasury,
+                    inFlowRate,
+                    new bytes(0) // placeholder
+                ),
+                "0x",
+                newCtx
+            );
+          } else {
+            // @dev update the treasury flow
+            (newCtx, ) = _host.callAgreementWithContext(
+                _cfa,
+                abi.encodeWithSelector(
+                    _cfa.updateFlow.selector,
+                    _acceptedToken,
+                    treasury,
+                    treasuryFlowRate + inFlowRate,
+                    new bytes(0) // placeholder
+                ),
+                "0x",
+                newCtx
+            );
+          }
       }
       flowRates[customer] = inFlowRate;
     }
@@ -462,7 +552,7 @@ contract DAOFactory {
         address superToken
     );
 
-    function createDAOSuperApp(string memory name, string calldata symbol, bool enableDeposits, bool enableStreams) external returns (address) {
+    function createDAOSuperApp(string memory name, string calldata symbol, bool enableDeposits, bool enableStreams, address accepted) external returns (address) {
         console.log(block.timestamp);
         // step 1: create super token
         //INativeSuperToken daoToken = INativeSuperToken(address(new NativeSuperTokenProxy()));
@@ -485,8 +575,9 @@ contract DAOFactory {
         );
         console.log("after daoToken init");
         // step 4: initialize superApp
-        address futureTimelock = Clones.predictDeterministicAddress(timelockImplementation, keccak256(abi.encodePacked(address(daoToken))), msg.sender);
-        DAOSuperApp(superApp).initialize(address(daoToken), address(superDaoToken), msg.sender, futureTimelock, enableDeposits, enableStreams);
+        address futureTimelock = Clones.predictDeterministicAddress(timelockImplementation, keccak256(abi.encodePacked(address(daoToken))), address(this));
+        console.log("futureTimelock", futureTimelock);
+        DAOSuperApp(superApp).initialize(address(daoToken), address(superDaoToken), msg.sender, futureTimelock, enableDeposits, enableStreams, accepted);
         console.log("after superApp init");
         emit DAOSuperAppCreated(msg.sender, address(superApp), address(daoToken), address(superDaoToken));
         return superApp;

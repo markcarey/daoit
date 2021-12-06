@@ -5,15 +5,17 @@ const PRIVATE_KEY = process.env.PRIVATE_KEY;
 
 const appFactoryJSON = require("../artifacts/contracts/DAOit.sol/DAOFactory.json");
 //const govFactoryJSON = require("../artifacts/contracts/DAOit.sol/DAOGovernanceFactory.json");
+const superAppJSON = require("../artifacts/contracts/DAOit.sol/DAOSuperApp.json");
 
-const appFactoryAddress = "0x8Ed4401f8436d07a74eefB80C8034Acc7d6632E0";
+const appFactoryAddress = "0x0CbA80FBC25d2d53dCA356a6a89fEC28e704CE89";
 //const govFactoryAddress = appFactoryAddress;
 
-const daoTokenAddress = "0x5F5D790730687BDd3288b7bb93ac67634bbA0E7e";
-const superAppAddress = "0xdCa41f0a5b5029473d36FE4a5f3F4c0a6a1B93f5";
+const superAppAddress = "0x1644Cd7e14267A8B088105361E2370402A72A118";
+const daoTokenAddress = "0x9CFE34d3F1D07747CAd72b87E8fF24492B6C03c0";
+const superTokenAddress = "0xc15590f7517e131F465d826CD4Cb1dF74Cd2e18C";
 
-const governorAddress = "0x4c6DAB0DA1e981c046205Cb85B765EA7fb326787";
-const timelockAddress = "0xd22712F5c724056AbFbC6767b30B8cDb437267CC";
+const governorAddress = "0x8202ab65F910f3AE0c52CC51b27b90cd65158bbB";
+const timelockAddress = "0x0Ff51826711b7AD5D20a00e04209ee601aCF75BE";
 
 
 
@@ -66,11 +68,11 @@ if ( chain == "rinkeby" ) {
   addr.SuperTokenFactory = "0xd465e36e607d493cd4CC1e83bea275712BECd5E0";
   addr.SuperHost = "0xeD5B5b32110c3Ded02a07c8b8e97513FAfb883B6";
   addr.cfa = "0xF4C5310E51F6079F601a5fb7120bC72a70b96e2A";
-  addr.WETH = "";
+  addr.WETH = "0xc778417E063141139Fce010982780140Aa0cD5Ab";
   addr.DAI = "0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa";
   addr.USDC = "";
-  addr.ETHx = "";
-  addr.WETHx = addr.ETHx;
+  addr.ETHx = "0xa623b2DD931C5162b7a0B25852f4024Db48bb1A0";
+  addr.WETHx = addr.ETHx; // "0x3FbcaeaA76d6f7Fe31DaEa1655b97F1436c0a747";
   addr.USDCx = "";
   addr.WBTC = "";
   addr.WBTCx = "";
@@ -2156,364 +2158,413 @@ var superABI = [{
   "type": "function"
 }];
 
-const cfaABI = [{
-  "anonymous": false,
-  "inputs": [{
-      "indexed": false,
-      "internalType": "bytes32",
-      "name": "uuid",
-      "type": "bytes32"
-  }, {
-      "indexed": false,
-      "internalType": "address",
-      "name": "codeAddress",
-      "type": "address"
-  }],
-  "name": "CodeUpdated",
-  "type": "event"
-}, {
-  "anonymous": false,
-  "inputs": [{
-      "indexed": true,
-      "internalType": "contract ISuperfluidToken",
-      "name": "token",
-      "type": "address"
-  }, {
-      "indexed": true,
-      "internalType": "address",
-      "name": "sender",
-      "type": "address"
-  }, {
-      "indexed": true,
-      "internalType": "address",
-      "name": "receiver",
-      "type": "address"
-  }, {
-      "indexed": false,
-      "internalType": "int96",
-      "name": "flowRate",
-      "type": "int96"
-  }, {
-      "indexed": false,
-      "internalType": "int256",
-      "name": "totalSenderFlowRate",
-      "type": "int256"
-  }, {
-      "indexed": false,
-      "internalType": "int256",
-      "name": "totalReceiverFlowRate",
-      "type": "int256"
-  }, {
-      "indexed": false,
-      "internalType": "bytes",
-      "name": "userData",
-      "type": "bytes"
-  }],
-  "name": "FlowUpdated",
-  "type": "event"
-}, {
-  "inputs": [],
-  "name": "agreementType",
-  "outputs": [{
-      "internalType": "bytes32",
-      "name": "",
-      "type": "bytes32"
-  }],
-  "stateMutability": "pure",
-  "type": "function"
-}, {
-  "inputs": [{
-      "internalType": "contract ISuperfluidToken",
-      "name": "token",
-      "type": "address"
-  }, {
-      "internalType": "address",
-      "name": "receiver",
-      "type": "address"
-  }, {
-      "internalType": "int96",
-      "name": "flowRate",
-      "type": "int96"
-  }, {
-      "internalType": "bytes",
-      "name": "ctx",
-      "type": "bytes"
-  }],
-  "name": "createFlow",
-  "outputs": [{
-      "internalType": "bytes",
-      "name": "newCtx",
-      "type": "bytes"
-  }],
-  "stateMutability": "nonpayable",
-  "type": "function"
-}, {
-  "inputs": [{
-      "internalType": "contract ISuperfluidToken",
-      "name": "token",
-      "type": "address"
-  }, {
-      "internalType": "address",
-      "name": "sender",
-      "type": "address"
-  }, {
-      "internalType": "address",
-      "name": "receiver",
-      "type": "address"
-  }, {
-      "internalType": "bytes",
-      "name": "ctx",
-      "type": "bytes"
-  }],
-  "name": "deleteFlow",
-  "outputs": [{
-      "internalType": "bytes",
-      "name": "newCtx",
-      "type": "bytes"
-  }],
-  "stateMutability": "nonpayable",
-  "type": "function"
-}, {
-  "inputs": [{
-      "internalType": "contract ISuperfluidToken",
-      "name": "token",
-      "type": "address"
-  }, {
-      "internalType": "address",
-      "name": "account",
-      "type": "address"
-  }],
-  "name": "getAccountFlowInfo",
-  "outputs": [{
-      "internalType": "uint256",
-      "name": "timestamp",
-      "type": "uint256"
-  }, {
-      "internalType": "int96",
-      "name": "flowRate",
-      "type": "int96"
-  }, {
-      "internalType": "uint256",
-      "name": "deposit",
-      "type": "uint256"
-  }, {
-      "internalType": "uint256",
-      "name": "owedDeposit",
-      "type": "uint256"
-  }],
-  "stateMutability": "view",
-  "type": "function"
-}, {
-  "inputs": [],
-  "name": "getCodeAddress",
-  "outputs": [{
-      "internalType": "address",
-      "name": "codeAddress",
-      "type": "address"
-  }],
-  "stateMutability": "view",
-  "type": "function"
-}, {
-  "inputs": [{
-      "internalType": "contract ISuperfluidToken",
-      "name": "token",
-      "type": "address"
-  }, {
-      "internalType": "int96",
-      "name": "flowRate",
-      "type": "int96"
-  }],
-  "name": "getDepositRequiredForFlowRate",
-  "outputs": [{
-      "internalType": "uint256",
-      "name": "deposit",
-      "type": "uint256"
-  }],
-  "stateMutability": "view",
-  "type": "function"
-}, {
-  "inputs": [{
-      "internalType": "contract ISuperfluidToken",
-      "name": "token",
-      "type": "address"
-  }, {
-      "internalType": "address",
-      "name": "sender",
-      "type": "address"
-  }, {
-      "internalType": "address",
-      "name": "receiver",
-      "type": "address"
-  }],
-  "name": "getFlow",
-  "outputs": [{
-      "internalType": "uint256",
-      "name": "timestamp",
-      "type": "uint256"
-  }, {
-      "internalType": "int96",
-      "name": "flowRate",
-      "type": "int96"
-  }, {
-      "internalType": "uint256",
-      "name": "deposit",
-      "type": "uint256"
-  }, {
-      "internalType": "uint256",
-      "name": "owedDeposit",
-      "type": "uint256"
-  }],
-  "stateMutability": "view",
-  "type": "function"
-}, {
-  "inputs": [{
-      "internalType": "contract ISuperfluidToken",
-      "name": "token",
-      "type": "address"
-  }, {
-      "internalType": "bytes32",
-      "name": "flowId",
-      "type": "bytes32"
-  }],
-  "name": "getFlowByID",
-  "outputs": [{
-      "internalType": "uint256",
-      "name": "timestamp",
-      "type": "uint256"
-  }, {
-      "internalType": "int96",
-      "name": "flowRate",
-      "type": "int96"
-  }, {
-      "internalType": "uint256",
-      "name": "deposit",
-      "type": "uint256"
-  }, {
-      "internalType": "uint256",
-      "name": "owedDeposit",
-      "type": "uint256"
-  }],
-  "stateMutability": "view",
-  "type": "function"
-}, {
-  "inputs": [{
-      "internalType": "contract ISuperfluidToken",
-      "name": "token",
-      "type": "address"
-  }, {
-      "internalType": "uint256",
-      "name": "deposit",
-      "type": "uint256"
-  }],
-  "name": "getMaximumFlowRateFromDeposit",
-  "outputs": [{
-      "internalType": "int96",
-      "name": "flowRate",
-      "type": "int96"
-  }],
-  "stateMutability": "view",
-  "type": "function"
-}, {
-  "inputs": [{
-      "internalType": "contract ISuperfluidToken",
-      "name": "token",
-      "type": "address"
-  }, {
-      "internalType": "address",
-      "name": "account",
-      "type": "address"
-  }],
-  "name": "getNetFlow",
-  "outputs": [{
-      "internalType": "int96",
-      "name": "flowRate",
-      "type": "int96"
-  }],
-  "stateMutability": "view",
-  "type": "function"
-}, {
-  "inputs": [],
-  "name": "initialize",
-  "outputs": [],
-  "stateMutability": "nonpayable",
-  "type": "function"
-}, {
-  "inputs": [],
-  "name": "proxiableUUID",
-  "outputs": [{
-      "internalType": "bytes32",
-      "name": "",
-      "type": "bytes32"
-  }],
-  "stateMutability": "view",
-  "type": "function"
-}, {
-  "inputs": [{
-      "internalType": "contract ISuperfluidToken",
-      "name": "token",
-      "type": "address"
-  }, {
-      "internalType": "address",
-      "name": "account",
-      "type": "address"
-  }, {
-      "internalType": "uint256",
-      "name": "time",
-      "type": "uint256"
-  }],
-  "name": "realtimeBalanceOf",
-  "outputs": [{
-      "internalType": "int256",
-      "name": "dynamicBalance",
-      "type": "int256"
-  }, {
-      "internalType": "uint256",
-      "name": "deposit",
-      "type": "uint256"
-  }, {
-      "internalType": "uint256",
-      "name": "owedDeposit",
-      "type": "uint256"
-  }],
-  "stateMutability": "view",
-  "type": "function"
-}, {
-  "inputs": [{
-      "internalType": "address",
-      "name": "newAddress",
-      "type": "address"
-  }],
-  "name": "updateCode",
-  "outputs": [],
-  "stateMutability": "nonpayable",
-  "type": "function"
-}, {
-  "inputs": [{
-      "internalType": "contract ISuperfluidToken",
-      "name": "token",
-      "type": "address"
-  }, {
-      "internalType": "address",
-      "name": "receiver",
-      "type": "address"
-  }, {
-      "internalType": "int96",
-      "name": "flowRate",
-      "type": "int96"
-  }, {
-      "internalType": "bytes",
-      "name": "ctx",
-      "type": "bytes"
-  }],
-  "name": "updateFlow",
-  "outputs": [{
-      "internalType": "bytes",
-      "name": "newCtx",
-      "type": "bytes"
-  }],
-  "stateMutability": "nonpayable",
-  "type": "function"
-}];
+const cfaABI = [
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "contract ISuperfluidToken",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "receiver",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "int96",
+        "name": "flowRate",
+        "type": "int96"
+      },
+      {
+        "indexed": false,
+        "internalType": "int256",
+        "name": "totalSenderFlowRate",
+        "type": "int256"
+      },
+      {
+        "indexed": false,
+        "internalType": "int256",
+        "name": "totalReceiverFlowRate",
+        "type": "int256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes",
+        "name": "userData",
+        "type": "bytes"
+      }
+    ],
+    "name": "FlowUpdated",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "agreementType",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract ISuperfluidToken",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "receiver",
+        "type": "address"
+      },
+      {
+        "internalType": "int96",
+        "name": "flowRate",
+        "type": "int96"
+      },
+      {
+        "internalType": "bytes",
+        "name": "ctx",
+        "type": "bytes"
+      }
+    ],
+    "name": "createFlow",
+    "outputs": [
+      {
+        "internalType": "bytes",
+        "name": "newCtx",
+        "type": "bytes"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract ISuperfluidToken",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "receiver",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes",
+        "name": "ctx",
+        "type": "bytes"
+      }
+    ],
+    "name": "deleteFlow",
+    "outputs": [
+      {
+        "internalType": "bytes",
+        "name": "newCtx",
+        "type": "bytes"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract ISuperfluidToken",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "getAccountFlowInfo",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "int96",
+        "name": "flowRate",
+        "type": "int96"
+      },
+      {
+        "internalType": "uint256",
+        "name": "deposit",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "owedDeposit",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract ISuperfluidToken",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "internalType": "int96",
+        "name": "flowRate",
+        "type": "int96"
+      }
+    ],
+    "name": "getDepositRequiredForFlowRate",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "deposit",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract ISuperfluidToken",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "receiver",
+        "type": "address"
+      }
+    ],
+    "name": "getFlow",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "int96",
+        "name": "flowRate",
+        "type": "int96"
+      },
+      {
+        "internalType": "uint256",
+        "name": "deposit",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "owedDeposit",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract ISuperfluidToken",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "agreementId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getFlowByID",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "timestamp",
+        "type": "uint256"
+      },
+      {
+        "internalType": "int96",
+        "name": "flowRate",
+        "type": "int96"
+      },
+      {
+        "internalType": "uint256",
+        "name": "deposit",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "owedDeposit",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract ISuperfluidToken",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "deposit",
+        "type": "uint256"
+      }
+    ],
+    "name": "getMaximumFlowRateFromDeposit",
+    "outputs": [
+      {
+        "internalType": "int96",
+        "name": "flowRate",
+        "type": "int96"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract ISuperfluidToken",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "getNetFlow",
+    "outputs": [
+      {
+        "internalType": "int96",
+        "name": "flowRate",
+        "type": "int96"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "initialize",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract ISuperfluidToken",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "time",
+        "type": "uint256"
+      }
+    ],
+    "name": "realtimeBalanceOf",
+    "outputs": [
+      {
+        "internalType": "int256",
+        "name": "dynamicBalance",
+        "type": "int256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "deposit",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "owedDeposit",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "contract ISuperfluidToken",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "receiver",
+        "type": "address"
+      },
+      {
+        "internalType": "int96",
+        "name": "flowRate",
+        "type": "int96"
+      },
+      {
+        "internalType": "bytes",
+        "name": "ctx",
+        "type": "bytes"
+      }
+    ],
+    "name": "updateFlow",
+    "outputs": [
+      {
+        "internalType": "bytes",
+        "name": "newCtx",
+        "type": "bytes"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+];
+
 
 const hostABI = [{"inputs":[{"internalType":"bool","name":"nonUpgradable","type":"bool"},{"internalType":"bool","name":"appWhiteListingEnabled","type":"bool"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"bytes32","name":"agreementType","type":"bytes32"},{"indexed":false,"internalType":"address","name":"code","type":"address"}],"name":"AgreementClassRegistered","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"bytes32","name":"agreementType","type":"bytes32"},{"indexed":false,"internalType":"address","name":"code","type":"address"}],"name":"AgreementClassUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"contract ISuperApp","name":"app","type":"address"}],"name":"AppRegistered","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"bytes32","name":"uuid","type":"bytes32"},{"indexed":false,"internalType":"address","name":"codeAddress","type":"address"}],"name":"CodeUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"contract ISuperfluidGovernance","name":"oldGov","type":"address"},{"indexed":false,"internalType":"contract ISuperfluidGovernance","name":"newGov","type":"address"}],"name":"GovernanceReplaced","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"contract ISuperApp","name":"app","type":"address"},{"indexed":false,"internalType":"uint256","name":"reason","type":"uint256"}],"name":"Jail","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"contract ISuperTokenFactory","name":"newFactory","type":"address"}],"name":"SuperTokenFactoryUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"contract ISuperToken","name":"token","type":"address"},{"indexed":false,"internalType":"address","name":"code","type":"address"}],"name":"SuperTokenLogicUpdated","type":"event"},{"inputs":[],"name":"APP_WHITE_LISTING_ENABLED","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"CALLBACK_GAS_LIMIT","outputs":[{"internalType":"uint64","name":"","type":"uint64"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"MAX_APP_LEVEL","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"NON_UPGRADABLE_DEPLOYMENT","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"bitmap","type":"uint256"},{"internalType":"bytes32","name":"agreementType","type":"bytes32"}],"name":"addToAgreementClassesBitmap","outputs":[{"internalType":"uint256","name":"newBitmap","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"contract ISuperApp","name":"targetApp","type":"address"}],"name":"allowCompositeApp","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes","name":"ctx","type":"bytes"},{"internalType":"int256","name":"appAllowanceUsedDelta","type":"int256"}],"name":"appCallbackPop","outputs":[{"internalType":"bytes","name":"newCtx","type":"bytes"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes","name":"ctx","type":"bytes"},{"internalType":"contract ISuperApp","name":"app","type":"address"},{"internalType":"uint256","name":"appAllowanceGranted","type":"uint256"},{"internalType":"int256","name":"appAllowanceUsed","type":"int256"},{"internalType":"contract ISuperfluidToken","name":"appAllowanceToken","type":"address"}],"name":"appCallbackPush","outputs":[{"internalType":"bytes","name":"appCtx","type":"bytes"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"components":[{"internalType":"uint32","name":"operationType","type":"uint32"},{"internalType":"address","name":"target","type":"address"},{"internalType":"bytes","name":"data","type":"bytes"}],"internalType":"struct ISuperfluid.Operation[]","name":"operations","type":"tuple[]"}],"name":"batchCall","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract ISuperAgreement","name":"agreementClass","type":"address"},{"internalType":"bytes","name":"callData","type":"bytes"},{"internalType":"bytes","name":"userData","type":"bytes"}],"name":"callAgreement","outputs":[{"internalType":"bytes","name":"returnedData","type":"bytes"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract ISuperAgreement","name":"agreementClass","type":"address"},{"internalType":"bytes","name":"callData","type":"bytes"},{"internalType":"bytes","name":"userData","type":"bytes"},{"internalType":"bytes","name":"ctx","type":"bytes"}],"name":"callAgreementWithContext","outputs":[{"internalType":"bytes","name":"newCtx","type":"bytes"},{"internalType":"bytes","name":"returnedData","type":"bytes"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract ISuperApp","name":"app","type":"address"},{"internalType":"bytes","name":"callData","type":"bytes"}],"name":"callAppAction","outputs":[{"internalType":"bytes","name":"returnedData","type":"bytes"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract ISuperApp","name":"app","type":"address"},{"internalType":"bytes","name":"callData","type":"bytes"},{"internalType":"bytes","name":"ctx","type":"bytes"}],"name":"callAppActionWithContext","outputs":[{"internalType":"bytes","name":"newCtx","type":"bytes"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract ISuperApp","name":"app","type":"address"},{"internalType":"bytes","name":"callData","type":"bytes"},{"internalType":"bool","name":"isTermination","type":"bool"},{"internalType":"bytes","name":"ctx","type":"bytes"}],"name":"callAppAfterCallback","outputs":[{"internalType":"bytes","name":"newCtx","type":"bytes"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract ISuperApp","name":"app","type":"address"},{"internalType":"bytes","name":"callData","type":"bytes"},{"internalType":"bool","name":"isTermination","type":"bool"},{"internalType":"bytes","name":"ctx","type":"bytes"}],"name":"callAppBeforeCallback","outputs":[{"internalType":"bytes","name":"cbdata","type":"bytes"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes","name":"ctx","type":"bytes"},{"internalType":"uint256","name":"appAllowanceWantedMore","type":"uint256"},{"internalType":"int256","name":"appAllowanceUsedDelta","type":"int256"}],"name":"ctxUseAllowance","outputs":[{"internalType":"bytes","name":"newCtx","type":"bytes"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes","name":"ctx","type":"bytes"}],"name":"decodeCtx","outputs":[{"components":[{"internalType":"uint8","name":"appLevel","type":"uint8"},{"internalType":"uint8","name":"callType","type":"uint8"},{"internalType":"uint256","name":"timestamp","type":"uint256"},{"internalType":"address","name":"msgSender","type":"address"},{"internalType":"bytes4","name":"agreementSelector","type":"bytes4"},{"internalType":"bytes","name":"userData","type":"bytes"},{"internalType":"uint256","name":"appAllowanceGranted","type":"uint256"},{"internalType":"uint256","name":"appAllowanceWanted","type":"uint256"},{"internalType":"int256","name":"appAllowanceUsed","type":"int256"},{"internalType":"address","name":"appAddress","type":"address"},{"internalType":"contract ISuperfluidToken","name":"appAllowanceToken","type":"address"}],"internalType":"struct ISuperfluid.Context","name":"context","type":"tuple"}],"stateMutability":"pure","type":"function"},{"inputs":[{"components":[{"internalType":"uint32","name":"operationType","type":"uint32"},{"internalType":"address","name":"target","type":"address"},{"internalType":"bytes","name":"data","type":"bytes"}],"internalType":"struct ISuperfluid.Operation[]","name":"operations","type":"tuple[]"}],"name":"forwardBatchCall","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes32","name":"agreementType","type":"bytes32"}],"name":"getAgreementClass","outputs":[{"internalType":"contract ISuperAgreement","name":"agreementClass","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"contract ISuperApp","name":"appAddr","type":"address"}],"name":"getAppLevel","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"contract ISuperApp","name":"app","type":"address"}],"name":"getAppManifest","outputs":[{"internalType":"bool","name":"isSuperApp","type":"bool"},{"internalType":"bool","name":"isJailed","type":"bool"},{"internalType":"uint256","name":"noopMask","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getCodeAddress","outputs":[{"internalType":"address","name":"codeAddress","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getGovernance","outputs":[{"internalType":"contract ISuperfluidGovernance","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getSuperTokenFactory","outputs":[{"internalType":"contract ISuperTokenFactory","name":"factory","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getSuperTokenFactoryLogic","outputs":[{"internalType":"address","name":"logic","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"contract ISuperfluidGovernance","name":"gov","type":"address"}],"name":"initialize","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract ISuperAgreement","name":"agreementClass","type":"address"}],"name":"isAgreementClassListed","outputs":[{"internalType":"bool","name":"yes","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes32","name":"agreementType","type":"bytes32"}],"name":"isAgreementTypeListed","outputs":[{"internalType":"bool","name":"yes","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"contract ISuperApp","name":"app","type":"address"}],"name":"isApp","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"contract ISuperApp","name":"app","type":"address"}],"name":"isAppJailed","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"contract ISuperApp","name":"app","type":"address"},{"internalType":"contract ISuperApp","name":"targetApp","type":"address"}],"name":"isCompositeAppAllowed","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes","name":"ctx","type":"bytes"}],"name":"isCtxValid","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"forwarder","type":"address"}],"name":"isTrustedForwarder","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes","name":"ctx","type":"bytes"},{"internalType":"contract ISuperApp","name":"app","type":"address"},{"internalType":"uint256","name":"reason","type":"uint256"}],"name":"jailApp","outputs":[{"internalType":"bytes","name":"newCtx","type":"bytes"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"bitmap","type":"uint256"}],"name":"mapAgreementClasses","outputs":[{"internalType":"contract ISuperAgreement[]","name":"agreementClasses","type":"address[]"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"proxiableUUID","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"contract ISuperAgreement","name":"agreementClassLogic","type":"address"}],"name":"registerAgreementClass","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"configWord","type":"uint256"}],"name":"registerApp","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract ISuperApp","name":"app","type":"address"},{"internalType":"uint256","name":"configWord","type":"uint256"}],"name":"registerAppByFactory","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"configWord","type":"uint256"},{"internalType":"string","name":"registrationKey","type":"string"}],"name":"registerAppWithKey","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"bitmap","type":"uint256"},{"internalType":"bytes32","name":"agreementType","type":"bytes32"}],"name":"removeFromAgreementClassesBitmap","outputs":[{"internalType":"uint256","name":"newBitmap","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"contract ISuperfluidGovernance","name":"newGov","type":"address"}],"name":"replaceGovernance","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract ISuperAgreement","name":"agreementClassLogic","type":"address"}],"name":"updateAgreementClass","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"newAddress","type":"address"}],"name":"updateCode","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract ISuperTokenFactory","name":"newFactory","type":"address"}],"name":"updateSuperTokenFactory","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract ISuperToken","name":"token","type":"address"}],"name":"updateSuperTokenLogic","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"versionRecipient","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"pure","type":"function"}];
 
@@ -2548,8 +2599,51 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
- async function createApp(name, symbol) {
-  await daoFactory.createDAOSuperApp(name, symbol, true, true);
+async function openStream(sToken, flowRateBySeconds) {
+  let iface = new ethers.utils.Interface(cfaABI);
+  await host.callAgreement(
+    addr.cfa,
+    iface.encodeFunctionData("createFlow", [
+        sToken,
+        superAppAddress,
+        flowRateBySeconds,
+        "0x"
+    ]),
+    "0x"
+  );
+}
+
+async function updateStream(sToken, flowRateBySeconds) {
+  let iface = new ethers.utils.Interface(cfaABI);
+  await host.callAgreement(
+    addr.cfa,
+    iface.encodeFunctionData("updateFlow", [
+        sToken,
+        superAppAddress,
+        flowRateBySeconds,
+        "0x"
+    ]),
+    "0x"
+  );
+}
+
+async function upgrade() {
+  let superToken = new ethers.Contract(
+    addr.fDAIx,
+    superABI,
+    signer
+  );
+  let underlying = new ethers.Contract(
+    addr.fDAI,
+    ERC20abi,
+    signer
+  );
+  await underlying.approve(addr.fDAIx, '1000000000000000000000000');
+  await superToken.upgrade('10000000000000000000000');
+}
+
+ async function createApp(name, symbol, accepted) {
+  await daoFactory.createDAOSuperApp(name, symbol, true, true, accepted);
   var filter = await daoFactory.filters.DAOSuperAppCreated();
   daoFactory.on(filter, (owner, app, underlying, sToken, event) => { 
       console.log("superApp created at " + app);
@@ -2567,6 +2661,26 @@ async function createGov(token, vetoable, votingPeriod) {
       console.log("timelock created at " + timelock);
   });
   await sleep(15000);
+}
+
+async function approve(token, operator, amt) {
+  let contract = new ethers.Contract(
+    token,
+    ERC20abi,
+    signer
+  );
+  await contract.approve(operator, amt);
+  console.log("approved");
+}
+
+async function deposit(amt, beneficiary) {
+  let contract = new ethers.Contract(
+    superAppAddress,
+    superAppJSON.abi,
+    signer
+  );
+  await contract.deposit(amt, beneficiary);
+  console.log("deposited");
 }
 
 
@@ -2600,9 +2714,21 @@ async function setNonce() {
 }
 
 
- //createApp("The App9", "APP")
- createGov(daoTokenAddress, true, 30)
+//createApp("The App25", "WAPPW", addr.WETHx)
+//createGov(daoTokenAddress, true, 30)
  //setNonce()
+//openStream(addr.fDAIx, "1693766937669") 
+//openStream(addr.WETHx, "1693766937669") 
+//updateStream(addr.fDAIx, "2693766937669") 
+updateStream(addr.WETHx, "2693766937669") 
+//getSome(addr.fDAI, "0x5a9e792143bf2708b4765c144451dca54f559a19")
+//getSome(addr.fDAIx, "0xac7605770e89ef96f68a081815b2fb8d59532896")
+//getSome(addr.WETH, "0x87379c15810e77502e436Ab8f06794cC662D39a5")
+//getSome("0xa623b2DD931C5162b7a0B25852f4024Db48bb1A0","0x7f9d39de53a3036463146e91e921cc9fbfcb2de4")
+//upgrade()
+//approve(addr.fDAI, superAppAddress, '100000000000000000000000' )
+//approve(addr.WETH, superAppAddress, '100000000000000000000000' )
+//deposit("20000000000000000000", PUBLIC_KEY)
 
  //clone("The Backee", "EEE", '10000000000000000000000000000')
    .then(() => process.exit(0))
