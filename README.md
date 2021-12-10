@@ -4,7 +4,7 @@
 
 [https://daoit.xyz](https://daoit.xyz "DAOit")
 
-![DAOit](https://daoit.xyz/images/daoit-black.png)
+![DAOit](https://daoit.xyz/images/daoit128-black.png)
 
 Create a DAO in minutes:
 - No coding required, just submit two forms / transactions
@@ -22,23 +22,27 @@ By submitting two short forms, 5 contracts are deployed:
 
 - *Super DAO Token*. The _super_ token is the DAO Token upgraded (wrapped) using the Superfluid protocol, enabling it to be streamed in real-time. 
 
-- *DAO Manager*. The DAO manager contract handles financial contributions to DAO and distribution of DAO tokens to members. Using the `deposit()` function, contributions can be sent to the DAO. As part fo the deposit transaction, the DAO manager will mint and send DAO tokens to the member, comensurate to their "share" of the treasury. If the deposit is made with tokens other than the chosen "accepted" token, the DAO Manager will attempt to swap the tokens using Uniswap. Members can also contribute by sending streams of accepted tokens to the DAO Manager, which acts as "Super App" in the Superfluid protocol. In this case, the DAO Manager starts a real-time stream of DAO Tokens back to the member, which continues as long as the deposit stream remains active. Whether deposited or streamed, all tokens are forwarded immediate to the treasury (Timelock) contract. The DAO Manager is not intended to HODL tokens, rather it mensures that tokens are sent or streamed to the correct recipients.  Finally, the `grant()` function can be used to grant DAO Tokens without requiring a deposit. Normally this woudl be executed via a Goverance proposal.
+- *DAO Manager*. The DAO manager contract handles financial contributions to the DAO and distribution of DAO tokens to members. Using the `deposit()` function, contributions can be sent to the DAO. As part fo the deposit transaction, the DAO manager will mint and send DAO tokens to the member, equivalent to their "share" of the treasury. If the deposit is made with tokens other than the chosen "accepted" token, the DAO Manager will attempt to swap the tokens using Uniswap. Members can also contribute by sending streams of accepted tokens to the DAO Manager, which acts as a "Super App" in the Superfluid protocol. In this case, the DAO Manager starts a real-time stream of DAO Tokens back to the member, which continues as long as the deposit stream remains active. Whether deposited or streamed, all tokens are forwarded immediately to the treasury (Timelock/Executor) contract. The DAO Manager is not intended to HODL tokens, rather it ensures that tokens are sent or streamed to the correct recipients.  Finally, the `grant()` function can be used to grant DAO Tokens without requiring a deposit. Normally this would be executed via a governance proposal.
 
 - *DAO Governor*. The DAO Governor contract is an *Open Zeppelin Governor* contract with the _TimelockControl_ extension, enabling the Timelock(treasury) to act as the executor of governance proposals with a time delay between a proposal passing and being executed.
 
 - *DAO Executor*. This an *OpenZeppelin Timelock* contract that acts a treasury for the DAO. It executes DAO proposals and holds all funds/tokens odf the DAO. DAO members can direct these funds via goverance proposals.
 
 ### No Withdrawals
-Note: by design, there is no permissionless means for members to *withdraw* funds from the DAO. This is not to be confused with a *vault* -- once funds have been contributed to the DAO, it is up to governance to decided how those funds are spent. 
+Note: by design, there is no permissionless means for members to *withdraw* funds from the DAO. It is not to be confused with a *vault* -- once funds have been contributed to the DAO, it is up to governance to decided how those funds are spent. 
 
 ### Vetoable
-During governance creation, there is an option to grant *veto power* to the deployer. This enables the deployer to directly execute functions on behalf of the treasury and `grant()` DAO Tokens using the DAO Manager. This is intended to facilitate the early activities of the DAO before membership is well established, and it intended to be *temporarily*. At the appropriate time, the Vetoer *should* renounce these roles (via Open Zeppelin's Access Control).
+During governance creation, there is an option to grant *veto power* to the deployer. This enables the deployer to directly execute functions on behalf of the treasury and `grant()` DAO Tokens via the DAO Manager. This is intended to facilitate the early activities of the DAO before membership is well established, and it intended to be *temporary*. At the appropriate time, the Vetoer *should* renounce these roles (via Open Zeppelin's Access Control).
+
+### Multi-chain DAOs
+- DAOit creates DAO Token, DAO Manager, Governor, and Timelock contracts at the same addresses on multiple chains.
+- Enables contributions from L2s / sidechains to same Manager and/or Timelock address
 
 ## Frontend for Deposits & Grants
-The DAOit interface does not include frontend functions for interacting with the DAO contract after they have been deployed. Most DAO will want to integrate such features into their own websites. Alternatively, the deployer can use Etherscan to interact with the contracts (ie. to grant DAO Tokens).
+The DAOit interface does not include frontend functions for interacting with the DAO contract after they have been deployed. Most DAOs will want to integrate such features into their own websites. Alternatively, the deployer can use Etherscan to interact with the contracts (ie. to grant DAO Tokens).
 
 ## Tally Goverance Interface
-Tally (https://withtally.com) provides a user interface for creating and voting on governance proposals. After creating a DAO using DAOit, the deployer is presented with the detaisl needed to "Add a new DAO" on Tally. Once the DAO has been added to Tally, members can create proposals, delegate votes, and vote on proposals.
+Tally (https://withtally.com) provides a user interface for creating and voting on governance proposals. After creating a DAO using DAOit, the deployer is presented with the details needed to "Add a new DAO" on Tally. Once the DAO has been added to Tally, members can create proposals, delegate votes, and vote on proposals.
 
 ## Demo Video
 [https://youtu.be/EL46BEQQvhc](https://youtu.be/EL46BEQQvhc "DAOit Demo Video")
