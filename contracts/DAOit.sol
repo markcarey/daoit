@@ -191,37 +191,3 @@ contract DAOFactory is Initializable {
     }
 
 }
-
-contract FactoryFactory {
-
-    event DAOFactoryCreated(
-        address indexed _owner,
-        address daoFactory
-    );
-
-    constructor() {}
-
-    function createDaoFactory(
-        address _superTokenFactoryAddress, 
-        address _superAppImplementation,
-        address _tokenImplementation,
-        address _governorImplementation,
-        address _timelockImplementation,
-        address _factoryImplementation
-    ) external returns(address) {
-        bytes32 salt = keccak256(abi.encodePacked("VERSION0"));
-        address f = Clones.cloneDeterministic(_factoryImplementation, salt);
-        console.log("factory address", f);
-        DAOFactory daoFactory = DAOFactory(f);
-        daoFactory.initialize(
-            _superTokenFactoryAddress,
-            _superAppImplementation,
-            _tokenImplementation,
-            _governorImplementation,
-            _timelockImplementation
-        );
-        emit DAOFactoryCreated(msg.sender, f);
-        return f;
-    }
-
-}

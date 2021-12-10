@@ -1,4 +1,4 @@
-var chain = "rinkeby";
+var chain = "mumbai";
 
 var rpcURLs = {};
 rpcURLs.rinkeby = "eth-rinkeby.alchemyapi.io/v2/n_mDCfTpJ8I959arPP7PwiOptjubLm57";
@@ -13,8 +13,8 @@ var blockExplorer = ""
 var addr = {};
 
 var factories = {};
-factories.rinkeby = "0xF82a991a5d06844507833128281Ba78FE13b1926";
-factories.mumbai = "0xF4e5f5cA232060d06E9755135319e7E1Da72C975";
+factories.rinkeby =     "0xAa18cDA7c7c8894595B4e6bdEc7647Ff13e663ae";
+factories.mumbai =      "0xAa18cDA7c7c8894595B4e6bdEc7647Ff13e663ae";
 factories.polygon = "";
 var factoryAddress = factories[chain];
 
@@ -123,7 +123,7 @@ chainName.polygon = "Matic(Polygon) Mainnet";
 //const cfa = new web3.eth.Contract(cfaABI, addr.cfa);
 //const host = new web3.eth.Contract(hostABI, addr.SuperHost);
 
-var gas = web3.utils.toHex(new BN('2000000000')); // 2 Gwei;
+var gas = web3.utils.toHex(new BN('3000000000')); // 3 Gwei;
 var dappChain = 4; // default to Rinkeby
 var userChain;
 var accounts;
