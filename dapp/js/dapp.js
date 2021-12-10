@@ -1,15 +1,42 @@
-const rpcURL = "eth-rinkeby.alchemyapi.io/v2/n_mDCfTpJ8I959arPP7PwiOptjubLm57";
-var web3 = AlchemyWeb3.createAlchemyWeb3("wss://"+rpcURL);
-//var web3 = AlchemyWeb3.createAlchemyWeb3("http://localhost:8545");
-var BN = web3.utils.BN;
-const prov = {"url": "https://"+rpcURL};
-var provider = new ethers.providers.JsonRpcProvider(prov);
+var chain = "rinkeby";
+
+var rpcURLs = {};
+rpcURLs.rinkeby = "eth-rinkeby.alchemyapi.io/v2/n_mDCfTpJ8I959arPP7PwiOptjubLm57";
+rpcURLs.mumbai = "polygon-mumbai.g.alchemy.com/v2/Ptsa6JdQQUtTbRGM1Elvw_ed3cTszLoj";
+rpcURLs.polygon = "polygon-mainnet.g.alchemy.com/v2/Ptsa6JdQQUtTbRGM1Elvw_ed3cTszLoj";
+
+var factory;
+var ethersFactory;
+var web3;
+var BN;
+var blockExplorer = ""
+var addr = {};
+
+var factories = {};
+factories.rinkeby = "0xF82a991a5d06844507833128281Ba78FE13b1926";
+factories.mumbai = "0xF4e5f5cA232060d06E9755135319e7E1Da72C975";
+factories.polygon = "";
+var factoryAddress = factories[chain];
+
+function getFactory() {
+    var rpcURL = rpcURLs[chain];
+    factoryAddress = factories[chain];
+    //const rpcURL = "localhost:8545";
+    web3 = AlchemyWeb3.createAlchemyWeb3("wss://"+rpcURL);
+    //var web3 = AlchemyWeb3.createAlchemyWeb3("http://"+rpcURL);
+    const prov = {"url": "https://"+rpcURL};
+    //const prov = {"url": "http://"+rpcURL};
+    var provider = new ethers.providers.JsonRpcProvider(prov);
+
+    factory = new web3.eth.Contract(factoryABI, factoryAddress);
+    ethersFactory = new ethers.Contract(factoryAddress, factoryABI, provider);
+    BN = web3.utils.BN;
+    setAddr();
+}
+getFactory();
 
 const ipfsURL = "https://api.nft.storage/upload";
 var showWizard = false;
-const factoryAddress = "0x742554067bF9e0e08B43fA64aFD4F1BdC021e23E";
-const factory = new web3.eth.Contract(factoryABI, factoryAddress);
-const ethersFactory = new ethers.Contract(factoryAddress, factoryABI, provider);
 
 // step one
 var symbol;
@@ -31,66 +58,70 @@ const sleep = (milliseconds) => {
     return new Promise(resolve => setTimeout(resolve, milliseconds))
 };
 
-var chain = "rinkeby";
-var blockExplorer = ""
-var addr = {};
-if (chain == "mumbai") {
-    //Mumbai:
-    blockExplorer = "https://mumbai.polygonscan.com/";
-    addr.Resolver = "0x8C54C83FbDe3C59e59dd6E324531FB93d4F504d3";
-    addr.SuperTokenFactory = "0x200657E2f123761662567A1744f9ACAe50dF47E6";
-    addr.SuperHost = "0xEB796bdb90fFA0f28255275e16936D25d3418603";
-    addr.cfa = "0x49e565Ed1bdc17F3d220f72DF0857C26FA83F873";
-    addr.WETH = "0x3C68CE8504087f89c640D02d133646d98e64ddd9";
-    addr.DAI = "0x001B3B4d0F3714Ca98ba10F6042DaEbF0B1B7b6F";
-    addr.USDC = "0x2058A9D7613eEE744279e3856Ef0eAda5FCbaA7e";
+function setAddr() {
+    if (chain == "mumbai") {
+        //Mumbai:
+        blockExplorer = "https://mumbai.polygonscan.com/";
+        addr.router = "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506";
+        addr.Resolver = "0x8C54C83FbDe3C59e59dd6E324531FB93d4F504d3";
+        addr.SuperTokenFactory = "0x200657E2f123761662567A1744f9ACAe50dF47E6";
+        addr.SuperHost = "0xEB796bdb90fFA0f28255275e16936D25d3418603";
+        addr.cfa = "0x49e565Ed1bdc17F3d220f72DF0857C26FA83F873";
+        addr.WETH = "0x3C68CE8504087f89c640D02d133646d98e64ddd9";
+        addr.DAI = "0x001B3B4d0F3714Ca98ba10F6042DaEbF0B1B7b6F";
+        addr.USDC = "0x2058A9D7613eEE744279e3856Ef0eAda5FCbaA7e";
+        addr.WETHx = "0x7dA8ba196E747eec76246726Dc5BFC8a459BCD3e";
+    }
+    if (chain == "polygon") {
+        //Polygon
+        blockExplorer = "https://polygonscan.com/";
+        addr.router = "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506";
+        addr.Resolver = "0xE0cc76334405EE8b39213E620587d815967af39C";
+        addr.SuperTokenFactory = "0x2C90719f25B10Fc5646c82DA3240C76Fa5BcCF34";
+        addr.SuperHost = "0x3E14dC1b13c488a8d5D310918780c983bD5982E7";
+        addr.cfa = "0x6EeE6060f715257b970700bc2656De21dEdF074C";
+        addr.WETH = "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619";
+        addr.DAI = "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063";
+        addr.USDC = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174";
+        addr.ETHx = "0x27e1e4E6BC79D93032abef01025811B7E4727e85";
+        addr.WETHx = "0x27e1e4E6BC79D93032abef01025811B7E4727e85";
+        addr.USDCx = "0xCAa7349CEA390F89641fe306D93591f87595dc1F";
+        addr.WBTC = "0x1bfd67037b42cf73acf2047067bd4f2c47d9bfd6";
+        addr.WBTCx = "0x4086eBf75233e8492F1BCDa41C7f2A8288c2fB92";
+        addr.DAIx = "0x1305F6B6Df9Dc47159D12Eb7aC2804d4A33173c2";
+    }
+    if ( chain == "rinkeby" ) {
+        blockExplorer = "https://rinkeby.etherscan.io/";
+        addr.router = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D";
+        addr.Resolver = "0x659635Fab0A0cef1293f7eb3c7934542B6A6B31A";
+        addr.SuperTokenFactory = "0xd465e36e607d493cd4CC1e83bea275712BECd5E0";
+        addr.SuperHost = "0xeD5B5b32110c3Ded02a07c8b8e97513FAfb883B6";
+        addr.cfa = "0xF4C5310E51F6079F601a5fb7120bC72a70b96e2A";
+        addr.WETH = "0xc778417E063141139Fce010982780140Aa0cD5Ab";
+        addr.DAI = "0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa";
+        addr.USDC = "";
+        addr.ETHx = "0xa623b2DD931C5162b7a0B25852f4024Db48bb1A0";
+        addr.WETHx = addr.ETHx; // "0x3FbcaeaA76d6f7Fe31DaEa1655b97F1436c0a747";
+        addr.USDCx = "";
+        addr.WBTC = "";
+        addr.WBTCx = "";
+        addr.DAIx = "";
+        addr.fDAI = "0x15F0Ca26781C3852f8166eD2ebce5D18265cceb7";
+        addr.fDAIx = "0x745861AeD1EEe363b4AaA5F1994Be40b1e05Ff90";
+        addr.fUSDC = "0xbe49ac1EadAc65dccf204D4Df81d650B50122aB2";
+        addr.fUSDCx = "0x0F1D7C55A2B133E000eA10EeC03c774e0d6796e8";
+    }
 }
-if (chain == "polygon") {
-    //Polygon
-    blockExplorer = "https://polygonscan.com/";
-    addr.Resolver = "0xE0cc76334405EE8b39213E620587d815967af39C";
-    addr.SuperTokenFactory = "0x2C90719f25B10Fc5646c82DA3240C76Fa5BcCF34";
-    addr.SuperHost = "0x3E14dC1b13c488a8d5D310918780c983bD5982E7";
-    addr.cfa = "0x6EeE6060f715257b970700bc2656De21dEdF074C";
-    addr.WETH = "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619";
-    addr.DAI = "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063";
-    addr.USDC = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174";
-    addr.ETHx = "0x27e1e4E6BC79D93032abef01025811B7E4727e85";
-    addr.WETHx = "0x27e1e4E6BC79D93032abef01025811B7E4727e85";
-    addr.USDCx = "0xCAa7349CEA390F89641fe306D93591f87595dc1F";
-    addr.WBTC = "0x1bfd67037b42cf73acf2047067bd4f2c47d9bfd6";
-    addr.WBTCx = "0x4086eBf75233e8492F1BCDa41C7f2A8288c2fB92";
-    addr.DAIx = "0x1305F6B6Df9Dc47159D12Eb7aC2804d4A33173c2";
-}
-if ( chain == "rinkeby" ) {
-    blockExplorer = "https://rinkeby.etherscan.io/";
-    addr.Resolver = "0x659635Fab0A0cef1293f7eb3c7934542B6A6B31A";
-    addr.SuperTokenFactory = "0xd465e36e607d493cd4CC1e83bea275712BECd5E0";
-    addr.SuperHost = "0xeD5B5b32110c3Ded02a07c8b8e97513FAfb883B6";
-    addr.cfa = "0xF4C5310E51F6079F601a5fb7120bC72a70b96e2A";
-    addr.WETH = "0xc778417E063141139Fce010982780140Aa0cD5Ab";
-    addr.DAI = "0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa";
-    addr.USDC = "";
-    addr.ETHx = "0xa623b2DD931C5162b7a0B25852f4024Db48bb1A0"; // sETH
-    addr.WETHx = "0x3FbcaeaA76d6f7Fe31DaEa1655b97F1436c0a747";
-    addr.USDCx = "";
-    addr.WBTC = "";
-    addr.WBTCx = "";
-    addr.DAIx = "";
-    addr.fDAI = "0x15F0Ca26781C3852f8166eD2ebce5D18265cceb7";
-    addr.fDAIx = "0x745861AeD1EEe363b4AaA5F1994Be40b1e05Ff90";
-    addr.fUSDC = "0xbe49ac1EadAc65dccf204D4Df81d650B50122aB2";
-    addr.fUSDCx = "0x0F1D7C55A2B133E000eA10EeC03c774e0d6796e8";
-  }
-  var chainName = {};
-  chainName.rinkeby = "Ethereum Testnet Rinkeby";
-  chainName.ethereum = "Ethereum Network";
-  chainName.polygon = "Matic(Polygon) Mainnet";
-  
-const WETH = new web3.eth.Contract(tokenABI, addr.WETH); // need this?
-const resolver = new web3.eth.Contract(resolverABI, addr.Resolver);
-const cfa = new web3.eth.Contract(cfaABI, addr.cfa);
-const host = new web3.eth.Contract(hostABI, addr.SuperHost);
+setAddr();
+var chainName = {};
+chainName.rinkeby = "Ethereum Testnet Rinkeby";
+chainName.ethereum = "Ethereum Network";
+chainName.polygon = "Matic(Polygon) Mainnet";
+
+//const WETH = new web3.eth.Contract(tokenABI, addr.WETH); // need this?
+//const resolver = new web3.eth.Contract(resolverABI, addr.Resolver);
+//const cfa = new web3.eth.Contract(cfaABI, addr.cfa);
+//const host = new web3.eth.Contract(hostABI, addr.SuperHost);
 
 var gas = web3.utils.toHex(new BN('2000000000')); // 2 Gwei;
 var dappChain = 4; // default to Rinkeby
@@ -258,6 +289,8 @@ $( document ).ready(function() {
 
     $('select').formSelect();
 
+    $(".chain").text(chain);
+
     $( "body" ).on( "click", ".add", async function() {
         addToken();
         return false;
@@ -296,7 +329,7 @@ $( document ).ready(function() {
             'to': factoryAddress,
             'gasPrice': gas,
             'nonce': "" + nonce,
-            'data': factory.methods.createDAOSuperApp(name, symbol, true, true, accepted).encodeABI()
+            'data': factory.methods.createDAOSuperApp(name, symbol, accepted, addr.WETH, addr.SuperHost, addr.cfa, addr.router).encodeABI()
         };
         const txHash = await ethereum.request({
             method: 'eth_sendTransaction',

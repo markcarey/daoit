@@ -1,0 +1,31 @@
+{
+    "background_color": "#fff",
+    "display": "standalone",
+    "homepage_url": "https://daoit.xyz",
+    "providedBy": {
+        "name": "DAOit",
+        "url": "https://daoit.xyz"
+    },
+    "icons": [
+        {
+            "src": "/images/daoit192-black.png",
+            "sizes": "192x192",
+            "type": "image/png",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/images/daoit-black.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ],
+    "orientation": "portrait",
+    "name": "DAOit",
+    "description": "Create a DAO in minutes.",
+    "iconPath": "/images/daoit256-black.png",
+    "short_name": "DAOit",
+    "start_url": ".",
+    "theme_color": "#ff007a",
+    "skylink": "AQAlX6yFAe6m8yjCtytJes5gwhG-bG77yuozFY4YAUyyDg"
+}

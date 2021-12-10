@@ -5,17 +5,17 @@ const PRIVATE_KEY = process.env.PRIVATE_KEY;
 
 const appFactoryJSON = require("../artifacts/contracts/DAOit.sol/DAOFactory.json");
 //const govFactoryJSON = require("../artifacts/contracts/DAOit.sol/DAOGovernanceFactory.json");
-const superAppJSON = require("../artifacts/contracts/DAOit.sol/DAOSuperApp.json");
+const superAppJSON = require("../artifacts/contracts/DAOSuperApp.sol/DAOSuperApp.json");
 
-const appFactoryAddress = "0x0CbA80FBC25d2d53dCA356a6a89fEC28e704CE89";
+const appFactoryAddress = "0xA110e05133521C86E82fF5D1D482344A46CDBDF9";
 //const govFactoryAddress = appFactoryAddress;
 
-const superAppAddress = "0x1644Cd7e14267A8B088105361E2370402A72A118";
-const daoTokenAddress = "0x9CFE34d3F1D07747CAd72b87E8fF24492B6C03c0";
-const superTokenAddress = "0xc15590f7517e131F465d826CD4Cb1dF74Cd2e18C";
+const superAppAddress = "0xF612EC5a8B1EB0804C17Ed1f12c63DDF4cD72F03";
+const daoTokenAddress = "0xf1613f0C39D010c736d02eE609beEfdA136115Db";
+const superTokenAddress = "0x20374426b9c1f98110dd6E965feD264d6102b5c2";
 
-const governorAddress = "0x8202ab65F910f3AE0c52CC51b27b90cd65158bbB";
-const timelockAddress = "0x0Ff51826711b7AD5D20a00e04209ee601aCF75BE";
+const governorAddress = "0xE427FFa65AD2f2f3265F7F9c803E022A05A0c286";
+const timelockAddress = "0xE4Ba755aB8da3bC521C489c140E3E4A1a4f0b3D3";
 
 
 
@@ -23,6 +23,7 @@ var addr = {};
 var chain = "rinkeby";
 if (chain == "mumbai") {
   //Mumbai:
+  addr.router = "";
   addr.Resolver = "0x8C54C83FbDe3C59e59dd6E324531FB93d4F504d3";
   addr.SuperTokenFactory = "0x200657E2f123761662567A1744f9ACAe50dF47E6";
   addr.SuperHost = "0xEB796bdb90fFA0f28255275e16936D25d3418603";
@@ -49,6 +50,7 @@ if (chain == "polygon") {
 }
 if (chain == "kovan") {
   //Kovan
+  addr.router = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D";
   addr.Resolver = "0x851d3dd9dc97c1df1DA73467449B3893fc76D85B";
   addr.SuperTokenFactory = "0xF5F666AC8F581bAef8dC36C7C8828303Bd4F8561";
   addr.SuperHost = "0xF0d7d1D47109bA426B9D8A3Cde1941327af1eea3";
@@ -64,6 +66,7 @@ if (chain == "kovan") {
   addr.DAIx = "0x900B1D89FeC799D4D47b5dB345d6a460eb2530E8";
 }
 if ( chain == "rinkeby" ) {
+  addr.router = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D";
   addr.Resolver = "0x659635Fab0A0cef1293f7eb3c7934542B6A6B31A";
   addr.SuperTokenFactory = "0xd465e36e607d493cd4CC1e83bea275712BECd5E0";
   addr.SuperHost = "0xeD5B5b32110c3Ded02a07c8b8e97513FAfb883B6";
@@ -80,6 +83,49 @@ if ( chain == "rinkeby" ) {
   addr.fDAI = "0x15F0Ca26781C3852f8166eD2ebce5D18265cceb7";
   addr.fDAIx = "0x745861AeD1EEe363b4AaA5F1994Be40b1e05Ff90";
 }
+
+const c2factoryAddress = '0x4a27c059FD7E383854Ea7DE6Be9c390a795f6eE3';
+const c2factoryAbi = [
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: 'address',
+        name: 'addr',
+        type: 'address',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'salt',
+        type: 'uint256',
+      },
+    ],
+    name: 'Deployed',
+    type: 'event',
+  },
+  {
+    constant: false,
+    inputs: [
+      {
+        internalType: 'bytes',
+        name: 'code',
+        type: 'bytes',
+      },
+      {
+        internalType: 'uint256',
+        name: 'salt',
+        type: 'uint256',
+      },
+    ],
+    name: 'deploy',
+    outputs: [],
+    payable: false,
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+];
 
 
 const MANAGER = web3.utils.keccak256("MANAGER_ROLE");
@@ -2565,6 +2611,7 @@ const cfaABI = [
   }
 ];
 
+const DAIabi = [{"inputs":[{"internalType":"uint256","name":"_initialAmount","type":"uint256"},{"internalType":"string","name":"_tokenName","type":"string"},{"internalType":"uint8","name":"_decimalUnits","type":"uint8"},{"internalType":"string","name":"_tokenSymbol","type":"string"}],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"owner","type":"address"},{"indexed":true,"internalType":"address","name":"spender","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":false,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"constant":false,"inputs":[{"internalType":"address","name":"_owner","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"allocateTo","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"internalType":"address","name":"","type":"address"},{"internalType":"address","name":"","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"_spender","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":true,"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"dst","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transfer","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"internalType":"address","name":"src","type":"address"},{"internalType":"address","name":"dst","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transferFrom","outputs":[{"internalType":"bool","name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"}];
 
 const hostABI = [{"inputs":[{"internalType":"bool","name":"nonUpgradable","type":"bool"},{"internalType":"bool","name":"appWhiteListingEnabled","type":"bool"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"bytes32","name":"agreementType","type":"bytes32"},{"indexed":false,"internalType":"address","name":"code","type":"address"}],"name":"AgreementClassRegistered","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"bytes32","name":"agreementType","type":"bytes32"},{"indexed":false,"internalType":"address","name":"code","type":"address"}],"name":"AgreementClassUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"contract ISuperApp","name":"app","type":"address"}],"name":"AppRegistered","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"bytes32","name":"uuid","type":"bytes32"},{"indexed":false,"internalType":"address","name":"codeAddress","type":"address"}],"name":"CodeUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"contract ISuperfluidGovernance","name":"oldGov","type":"address"},{"indexed":false,"internalType":"contract ISuperfluidGovernance","name":"newGov","type":"address"}],"name":"GovernanceReplaced","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"contract ISuperApp","name":"app","type":"address"},{"indexed":false,"internalType":"uint256","name":"reason","type":"uint256"}],"name":"Jail","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"contract ISuperTokenFactory","name":"newFactory","type":"address"}],"name":"SuperTokenFactoryUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"contract ISuperToken","name":"token","type":"address"},{"indexed":false,"internalType":"address","name":"code","type":"address"}],"name":"SuperTokenLogicUpdated","type":"event"},{"inputs":[],"name":"APP_WHITE_LISTING_ENABLED","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"CALLBACK_GAS_LIMIT","outputs":[{"internalType":"uint64","name":"","type":"uint64"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"MAX_APP_LEVEL","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"NON_UPGRADABLE_DEPLOYMENT","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"bitmap","type":"uint256"},{"internalType":"bytes32","name":"agreementType","type":"bytes32"}],"name":"addToAgreementClassesBitmap","outputs":[{"internalType":"uint256","name":"newBitmap","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"contract ISuperApp","name":"targetApp","type":"address"}],"name":"allowCompositeApp","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes","name":"ctx","type":"bytes"},{"internalType":"int256","name":"appAllowanceUsedDelta","type":"int256"}],"name":"appCallbackPop","outputs":[{"internalType":"bytes","name":"newCtx","type":"bytes"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes","name":"ctx","type":"bytes"},{"internalType":"contract ISuperApp","name":"app","type":"address"},{"internalType":"uint256","name":"appAllowanceGranted","type":"uint256"},{"internalType":"int256","name":"appAllowanceUsed","type":"int256"},{"internalType":"contract ISuperfluidToken","name":"appAllowanceToken","type":"address"}],"name":"appCallbackPush","outputs":[{"internalType":"bytes","name":"appCtx","type":"bytes"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"components":[{"internalType":"uint32","name":"operationType","type":"uint32"},{"internalType":"address","name":"target","type":"address"},{"internalType":"bytes","name":"data","type":"bytes"}],"internalType":"struct ISuperfluid.Operation[]","name":"operations","type":"tuple[]"}],"name":"batchCall","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract ISuperAgreement","name":"agreementClass","type":"address"},{"internalType":"bytes","name":"callData","type":"bytes"},{"internalType":"bytes","name":"userData","type":"bytes"}],"name":"callAgreement","outputs":[{"internalType":"bytes","name":"returnedData","type":"bytes"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract ISuperAgreement","name":"agreementClass","type":"address"},{"internalType":"bytes","name":"callData","type":"bytes"},{"internalType":"bytes","name":"userData","type":"bytes"},{"internalType":"bytes","name":"ctx","type":"bytes"}],"name":"callAgreementWithContext","outputs":[{"internalType":"bytes","name":"newCtx","type":"bytes"},{"internalType":"bytes","name":"returnedData","type":"bytes"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract ISuperApp","name":"app","type":"address"},{"internalType":"bytes","name":"callData","type":"bytes"}],"name":"callAppAction","outputs":[{"internalType":"bytes","name":"returnedData","type":"bytes"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract ISuperApp","name":"app","type":"address"},{"internalType":"bytes","name":"callData","type":"bytes"},{"internalType":"bytes","name":"ctx","type":"bytes"}],"name":"callAppActionWithContext","outputs":[{"internalType":"bytes","name":"newCtx","type":"bytes"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract ISuperApp","name":"app","type":"address"},{"internalType":"bytes","name":"callData","type":"bytes"},{"internalType":"bool","name":"isTermination","type":"bool"},{"internalType":"bytes","name":"ctx","type":"bytes"}],"name":"callAppAfterCallback","outputs":[{"internalType":"bytes","name":"newCtx","type":"bytes"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract ISuperApp","name":"app","type":"address"},{"internalType":"bytes","name":"callData","type":"bytes"},{"internalType":"bool","name":"isTermination","type":"bool"},{"internalType":"bytes","name":"ctx","type":"bytes"}],"name":"callAppBeforeCallback","outputs":[{"internalType":"bytes","name":"cbdata","type":"bytes"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes","name":"ctx","type":"bytes"},{"internalType":"uint256","name":"appAllowanceWantedMore","type":"uint256"},{"internalType":"int256","name":"appAllowanceUsedDelta","type":"int256"}],"name":"ctxUseAllowance","outputs":[{"internalType":"bytes","name":"newCtx","type":"bytes"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes","name":"ctx","type":"bytes"}],"name":"decodeCtx","outputs":[{"components":[{"internalType":"uint8","name":"appLevel","type":"uint8"},{"internalType":"uint8","name":"callType","type":"uint8"},{"internalType":"uint256","name":"timestamp","type":"uint256"},{"internalType":"address","name":"msgSender","type":"address"},{"internalType":"bytes4","name":"agreementSelector","type":"bytes4"},{"internalType":"bytes","name":"userData","type":"bytes"},{"internalType":"uint256","name":"appAllowanceGranted","type":"uint256"},{"internalType":"uint256","name":"appAllowanceWanted","type":"uint256"},{"internalType":"int256","name":"appAllowanceUsed","type":"int256"},{"internalType":"address","name":"appAddress","type":"address"},{"internalType":"contract ISuperfluidToken","name":"appAllowanceToken","type":"address"}],"internalType":"struct ISuperfluid.Context","name":"context","type":"tuple"}],"stateMutability":"pure","type":"function"},{"inputs":[{"components":[{"internalType":"uint32","name":"operationType","type":"uint32"},{"internalType":"address","name":"target","type":"address"},{"internalType":"bytes","name":"data","type":"bytes"}],"internalType":"struct ISuperfluid.Operation[]","name":"operations","type":"tuple[]"}],"name":"forwardBatchCall","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes32","name":"agreementType","type":"bytes32"}],"name":"getAgreementClass","outputs":[{"internalType":"contract ISuperAgreement","name":"agreementClass","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"contract ISuperApp","name":"appAddr","type":"address"}],"name":"getAppLevel","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"contract ISuperApp","name":"app","type":"address"}],"name":"getAppManifest","outputs":[{"internalType":"bool","name":"isSuperApp","type":"bool"},{"internalType":"bool","name":"isJailed","type":"bool"},{"internalType":"uint256","name":"noopMask","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getCodeAddress","outputs":[{"internalType":"address","name":"codeAddress","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getGovernance","outputs":[{"internalType":"contract ISuperfluidGovernance","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getSuperTokenFactory","outputs":[{"internalType":"contract ISuperTokenFactory","name":"factory","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getSuperTokenFactoryLogic","outputs":[{"internalType":"address","name":"logic","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"contract ISuperfluidGovernance","name":"gov","type":"address"}],"name":"initialize","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract ISuperAgreement","name":"agreementClass","type":"address"}],"name":"isAgreementClassListed","outputs":[{"internalType":"bool","name":"yes","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes32","name":"agreementType","type":"bytes32"}],"name":"isAgreementTypeListed","outputs":[{"internalType":"bool","name":"yes","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"contract ISuperApp","name":"app","type":"address"}],"name":"isApp","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"contract ISuperApp","name":"app","type":"address"}],"name":"isAppJailed","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"contract ISuperApp","name":"app","type":"address"},{"internalType":"contract ISuperApp","name":"targetApp","type":"address"}],"name":"isCompositeAppAllowed","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes","name":"ctx","type":"bytes"}],"name":"isCtxValid","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"forwarder","type":"address"}],"name":"isTrustedForwarder","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes","name":"ctx","type":"bytes"},{"internalType":"contract ISuperApp","name":"app","type":"address"},{"internalType":"uint256","name":"reason","type":"uint256"}],"name":"jailApp","outputs":[{"internalType":"bytes","name":"newCtx","type":"bytes"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"bitmap","type":"uint256"}],"name":"mapAgreementClasses","outputs":[{"internalType":"contract ISuperAgreement[]","name":"agreementClasses","type":"address[]"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"proxiableUUID","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"contract ISuperAgreement","name":"agreementClassLogic","type":"address"}],"name":"registerAgreementClass","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"configWord","type":"uint256"}],"name":"registerApp","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract ISuperApp","name":"app","type":"address"},{"internalType":"uint256","name":"configWord","type":"uint256"}],"name":"registerAppByFactory","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"configWord","type":"uint256"},{"internalType":"string","name":"registrationKey","type":"string"}],"name":"registerAppWithKey","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"bitmap","type":"uint256"},{"internalType":"bytes32","name":"agreementType","type":"bytes32"}],"name":"removeFromAgreementClassesBitmap","outputs":[{"internalType":"uint256","name":"newBitmap","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"contract ISuperfluidGovernance","name":"newGov","type":"address"}],"name":"replaceGovernance","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract ISuperAgreement","name":"agreementClassLogic","type":"address"}],"name":"updateAgreementClass","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"newAddress","type":"address"}],"name":"updateCode","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract ISuperTokenFactory","name":"newFactory","type":"address"}],"name":"updateSuperTokenFactory","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract ISuperToken","name":"token","type":"address"}],"name":"updateSuperTokenLogic","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"versionRecipient","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"pure","type":"function"}];
 
@@ -2643,7 +2690,7 @@ async function upgrade() {
 }
 
  async function createApp(name, symbol, accepted) {
-  await daoFactory.createDAOSuperApp(name, symbol, true, true, accepted);
+  await daoFactory.createDAOSuperApp(name, symbol, accepted, addr.WETH, addr.SuperHost, addr.cfa, addr.router);
   var filter = await daoFactory.filters.DAOSuperAppCreated();
   daoFactory.on(filter, (owner, app, underlying, sToken, event) => { 
       console.log("superApp created at " + app);
@@ -2673,14 +2720,34 @@ async function approve(token, operator, amt) {
   console.log("approved");
 }
 
-async function deposit(amt, beneficiary) {
+async function mintDAI(amt) {
+  let contract = new ethers.Contract(
+    addr.DAI,
+    DAIabi,
+    signer
+  );
+  await contract.allocateTo(PUBLIC_KEY, amt);
+  console.log("minted DAI");
+}
+
+async function deposit(token, amt, beneficiary) {
   let contract = new ethers.Contract(
     superAppAddress,
     superAppJSON.abi,
     signer
   );
-  await contract.deposit(amt, beneficiary);
+  await contract.deposit(token, amt, beneficiary);
   console.log("deposited");
+}
+
+async function grant(beneficiary, amt) {
+  let contract = new ethers.Contract(
+    superAppAddress,
+    superAppJSON.abi,
+    signer
+  );
+  await contract.grant(beneficiary, amt);
+  console.log("granted");
 }
 
 
@@ -2713,22 +2780,38 @@ async function setNonce() {
   ]);
 }
 
+async function deployAppFactory() {
+  const c2factory = new ethers.Contract(c2factoryAddress, c2factoryAbi, signer);
+  const salt = ethers.utils.id("VERSION0");
+  const result = await c2factory.deploy(appFactoryJSON.bytecode, salt);
+  var filter = await c2factory.filters.Deployed();
+  c2factory.on(filter, (address, salt, event) => { 
+      console.log("app factory created at " + address);
+  });
+  await sleep(15000);
+}
 
-//createApp("The App25", "WAPPW", addr.WETHx)
+deployAppFactory()
+//createApp("The App28", "APP28", addr.WETHx)
 //createGov(daoTokenAddress, true, 30)
  //setNonce()
 //openStream(addr.fDAIx, "1693766937669") 
 //openStream(addr.WETHx, "1693766937669") 
 //updateStream(addr.fDAIx, "2693766937669") 
-updateStream(addr.WETHx, "2693766937669") 
+//updateStream(addr.WETHx, "2693766937669") 
+//getSome(addr.DAI, "0xba78afc7f22940896b9478567eaf5791f56a5774")
 //getSome(addr.fDAI, "0x5a9e792143bf2708b4765c144451dca54f559a19")
 //getSome(addr.fDAIx, "0xac7605770e89ef96f68a081815b2fb8d59532896")
-//getSome(addr.WETH, "0x87379c15810e77502e436Ab8f06794cC662D39a5")
+//getSome(addr.WETH, "0x87379c15810e77502e436ab8f06794cc662d39a5")
 //getSome("0xa623b2DD931C5162b7a0B25852f4024Db48bb1A0","0x7f9d39de53a3036463146e91e921cc9fbfcb2de4")
 //upgrade()
 //approve(addr.fDAI, superAppAddress, '100000000000000000000000' )
+//approve(addr.DAI, superAppAddress, '100000000000000000000000' )
 //approve(addr.WETH, superAppAddress, '100000000000000000000000' )
-//deposit("20000000000000000000", PUBLIC_KEY)
+//mintDAI("200000000000000000000")
+//deposit(addr.WETH, "20000000000000000000", PUBLIC_KEY)
+//deposit(addr.DAI, "20000000000000000000", PUBLIC_KEY)
+//grant(PUBLIC_KEY, "20000000000000000000")
 
  //clone("The Backee", "EEE", '10000000000000000000000000000')
    .then(() => process.exit(0))

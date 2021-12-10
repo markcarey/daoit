@@ -5,7 +5,7 @@ require('dotenv').config();
 require("@nomiclabs/hardhat-ethers");
 require("@nomiclabs/hardhat-etherscan");
 require("@nomiclabs/hardhat-web3");
-const { API_URL, PRIVATE_KEY, ETHERSCAN_API_KEY } = process.env;
+const { API_URL, MUMBAI_API_URL, POLYGON_API_URL, PRIVATE_KEY, ETHERSCAN_API_KEY } = process.env;
 module.exports = {
   solidity: {
     compilers: [
@@ -47,15 +47,29 @@ module.exports = {
           blockNumber: 9734005  // assumes rinkeby fork
         },
         loggingEnabled: true,
-        gasMultiplier: 5,
-        gasPrice: 1000000000 * 4
+        gasMultiplier: 7,
+        gasPrice: 1000000000 * 5,
+        blockGasLimit: 0x1fffffffffffff
       },
       rinkeby: {
         url: API_URL,
         accounts: [`0x${PRIVATE_KEY}`],
-        gasMultiplier: 3,
-        gasPrice: 1000000000 * 2
-     }
+        gasMultiplier: 10,
+        gasPrice: 1000000000 * 10,
+        blockGasLimit: 0x1fffffffffffff
+     },
+     mumbai: {
+      url: MUMBAI_API_URL,
+      accounts: [`0x${PRIVATE_KEY}`],
+      gasMultiplier: 3,
+      gasPrice: 1000000000 * 2
+    },
+    polygon: {
+      url: POLYGON_API_URL,
+      accounts: [`0x${PRIVATE_KEY}`],
+      gasMultiplier: 3,
+      gasPrice: 1000000000 * 2
+    }
    },
    etherscan: {
     apiKey: ETHERSCAN_API_KEY

@@ -1,6 +1,12 @@
 const factoryABI = [
   {
-    "inputs": [],
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_superTokenFactoryAddress",
+        "type": "address"
+      }
+    ],
     "stateMutability": "nonpayable",
     "type": "constructor"
   },
@@ -73,18 +79,28 @@ const factoryABI = [
         "type": "string"
       },
       {
-        "internalType": "bool",
-        "name": "enableDeposits",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "enableStreams",
-        "type": "bool"
+        "internalType": "address",
+        "name": "accepted",
+        "type": "address"
       },
       {
         "internalType": "address",
-        "name": "accepted",
+        "name": "weth",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "host",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "cfa",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "router",
         "type": "address"
       }
     ],
