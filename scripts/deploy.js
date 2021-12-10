@@ -66,18 +66,20 @@ async function main(stf) {
     
     var salt;
 
-    //const tokenContract = await ethers.getContractFactory("DAOToken");
-    //const token = await tokenContract.deploy();
-    //console.log("token deployed to address:", token.address);
-    //const appContract = await ethers.getContractFactory("DAOSuperApp");
-    //const app = await appContract.deploy();
-    //console.log("app deployed to address:", app.address);
-    //const govContract = await ethers.getContractFactory("DAOGovernor");
-    //const gov = await govContract.deploy();
-    //console.log("gov deployed to address:", gov.address);
-    //const execContract = await ethers.getContractFactory("DAOExecutor");
-    //const exec = await execContract.deploy();
-    //console.log("exec deployed to address:", exec.address);
+    const tokenContract = await ethers.getContractFactory("DAOToken");
+    const token = await tokenContract.deploy();
+    console.log("token deployed to address:", token.address);
+    const appContract = await ethers.getContractFactory("DAOSuperApp");
+    const app = await appContract.deploy();
+    console.log("app deployed to address:", app.address);
+    const govContract = await ethers.getContractFactory("DAOGovernor");
+    const gov = await govContract.deploy();
+    console.log("gov deployed to address:", gov.address);
+    const execContract = await ethers.getContractFactory("DAOExecutor");
+    const exec = await execContract.deploy();
+    console.log("exec deployed to address:", exec.address);
+
+    //return;
 
 
     //const appFactoryContract = await ethers.getContractFactory("DAOFactory");
@@ -169,8 +171,8 @@ async function main(stf) {
     //console.log("govFactory deployed to address:", govFactory.address);
  }
  
-//main("0xd465e36e607d493cd4CC1e83bea275712BECd5E0") // rinkeby
- main("0x200657E2f123761662567A1744f9ACAe50dF47E6") // mumbai
+main("0xd465e36e607d493cd4CC1e83bea275712BECd5E0") // rinkeby
+// main("0x200657E2f123761662567A1744f9ACAe50dF47E6") // mumbai
    .then(() => process.exit(0))
    .catch(error => {
      console.error(error);

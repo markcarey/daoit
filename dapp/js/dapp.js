@@ -1,4 +1,4 @@
-var chain = "mumbai";
+var chain = "rinkeby";
 
 var rpcURLs = {};
 rpcURLs.rinkeby = "eth-rinkeby.alchemyapi.io/v2/n_mDCfTpJ8I959arPP7PwiOptjubLm57";
@@ -117,6 +117,7 @@ var chainName = {};
 chainName.rinkeby = "Ethereum Testnet Rinkeby";
 chainName.ethereum = "Ethereum Network";
 chainName.polygon = "Matic(Polygon) Mainnet";
+chainName.mumbai = "Mumbai(Polygon) Testnet";
 
 //const WETH = new web3.eth.Contract(tokenABI, addr.WETH); // need this?
 //const resolver = new web3.eth.Contract(resolverABI, addr.Resolver);
@@ -148,10 +149,16 @@ async function main() {
     console.log("The chainId of connected account is " + web3.utils.hexToNumber(userChain));
 
     if ( !correctChain() ) {
-        await ethereum.request({
-            method: 'wallet_switchEthereumChain',
-            params: [{ chainId: web3.utils.toHex(dappChain) }],
-        });
+        if ( userChain == 80001 ) {
+            chain = "mumbai";
+            getFactory();
+            $(".chain").text(chain);
+        } else {
+            await ethereum.request({
+                method: 'wallet_switchEthereumChain',
+                params: [{ chainId: web3.utils.toHex(dappChain) }],
+            });
+        }
     }
 
     window.ethereum.on('accountsChanged', function () {
