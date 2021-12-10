@@ -47,6 +47,10 @@ Tally (https://withtally.com) provides a user interface for creating and voting 
 ## Demo Video
 [https://youtu.be/EL46BEQQvhc](https://youtu.be/EL46BEQQvhc "DAOit Demo Video")
 
+
+## History
+Worked on DAOit started in early December 2021.
+
 ## Contact
 
 **Discord**: markcarey#5670
