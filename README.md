@@ -48,6 +48,9 @@ Tally (https://withtally.com) provides a user interface for creating and voting 
 [https://youtu.be/EL46BEQQvhc](https://youtu.be/EL46BEQQvhc "DAOit Demo Video")
 
 ## Contact
+
 **Discord**: markcarey#5670
+
 **Twitter**: [https://twitter.com/mthacks](@mthacks "@mthacks")
+
 **Email**: myfirstname at mylastname dot com
