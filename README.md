@@ -44,6 +44,14 @@ The DAOit interface does not include frontend functions for interacting with the
 ## Tally Goverance Interface
 Tally (https://withtally.com) provides a user interface for creating and voting on governance proposals. After creating a DAO using DAOit, the deployer is presented with the details needed to "Add a new DAO" on Tally. Once the DAO has been added to Tally, members can create proposals, delegate votes, and vote on proposals.
 
+## Pain Points
+DAOs can be complicated to launch and may require thousands of dollars in development costs. DAOit makes it easy and fast ... and on a sidechain or L2, even deploying is inexpensive.
+
+## Use Cases
+- Non-profit DAOs raising funds directly from DAO members
+- Investment clubs where members receive shares (DAO tokens) based on how much they invest
+- NFT DAOs for pooling funds to collectively bid on one or more NFTs
+
 ## Demo Video
 [https://youtu.be/EL46BEQQvhc](https://youtu.be/EL46BEQQvhc "DAOit Demo Video")
 
