@@ -1,6 +1,7 @@
 cache/
 artifacts/
 .openzeppelin
+.DS_STORE
 
 # Logs
 logs

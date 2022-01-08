@@ -91,41 +91,17 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
         IERC1820RegistryUpgradeable _erc1820 = IERC1820RegistryUpgradeable(0x1820a4B7618BdE71Dce8cdc73aAB6C95905faD24);
         _erc1820.setInterfaceImplementer(address(this), keccak256("ERC777TokensRecipient"), address(this));
 
-        console.log("chainid", block.chainid);
-        if ( block.chainid == 137 ) {
-            // Polygon
-            _host = ISuperfluid(0x3E14dC1b13c488a8d5D310918780c983bD5982E7);
-            _cfa = IConstantFlowAgreementV1(0x6EeE6060f715257b970700bc2656De21dEdF074C);
-        }
-        if ( block.chainid == 80001 ) {
-            // Mumbai
-            _host = ISuperfluid(0xEB796bdb90fFA0f28255275e16936D25d3418603);
-            _cfa = IConstantFlowAgreementV1(0x49e565Ed1bdc17F3d220f72DF0857C26FA83F873);
-        }
-        if ( block.chainid == 42 ) {
-            // Kovan
-            _host = ISuperfluid(0xF0d7d1D47109bA426B9D8A3Cde1941327af1eea3);
-            _cfa = IConstantFlowAgreementV1(0xECa8056809e7e8db04A8fF6e4E82cD889a46FE2F);
-        }
-        if ( block.chainid == 4 || block.chainid == 31337 ) {
-            // Rinkeby
-            _host = ISuperfluid(0xeD5B5b32110c3Ded02a07c8b8e97513FAfb883B6);
-            _cfa = IConstantFlowAgreementV1(0xF4C5310E51F6079F601a5fb7120bC72a70b96e2A);
-        }
-
         weth = _weth;
         _host = ISuperfluid(host);
         _cfa = IConstantFlowAgreementV1(cfa);
         router = swapRouter;
-
-        console.log(address(_host), address(_cfa));
 
         uint256 configWord =
             SuperAppDefinitions.APP_LEVEL_FINAL |
             SuperAppDefinitions.BEFORE_AGREEMENT_CREATED_NOOP |
             SuperAppDefinitions.BEFORE_AGREEMENT_UPDATED_NOOP |
             SuperAppDefinitions.BEFORE_AGREEMENT_TERMINATED_NOOP;
-        _host.registerAppByFactory(ISuperApp(address(this)), configWord);
+        _host.registerAppByFactory(ISuperApp(address(this)), configWord);  //TODO: uncomment this!!!!
 
         daoToken = ISuperToken(_daoToken);
         underlying = DAOToken(_underlying);
@@ -136,18 +112,10 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
         streamsEnabled = true;
         depositsEnabled = true;
 
-        // upgrade half of supply
-        //uint256 amt = underlying.balanceOf(address(this)).div(2); 
-        //if (amt > 0) {
-        //    underlying.approve(address(daoToken), amt);
-        //    daoToken.upgrade(amt);
-        //}
         underlying.approve(address(daoToken), type(uint256).max);
 
         //Access Control
-        console.log("before grant default to treasury");
         _setupRole(DEFAULT_ADMIN_ROLE, treasury);
-        console.log("after granting DEFAULT admin role");
         _setupRole(MANAGER, admin);
         _setupRole(MANAGER, treasury);
 
@@ -172,7 +140,7 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
         address tokenAddress = _acceptedToken.getUnderlyingToken();
         console.log("tokenAddress", tokenAddress);
         if ( tokenAddress == address(0) ) {
-            tokenAddress = wethAddress();
+            tokenAddress = weth;
         }
         console.log("tokenAddress", tokenAddress);
         IERC20 token = IERC20(tokenAddress);
@@ -225,26 +193,6 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
         return supply.mul(100).div(treasuryBal);
     }
 
-    function wethAddress() internal view returns(address) {
-        //address weth;
-        if ( block.chainid == 4 || block.chainid == 31337 ) {
-            //weth = 0xc778417E063141139Fce010982780140Aa0cD5Ab;
-        }
-        if ( block.chainid == 137 ) {
-            ///weth = 0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619;
-        }
-        if ( block.chainid == 80001 ) {
-            //weth = 0x3C68CE8504087f89c640D02d133646d98e64ddd9;
-        }
-        if ( block.chainid == 1 ) {
-            //weth = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
-        }
-        if ( block.chainid == 42 ) {
-            //weth = 0xd0A1E359811322d97991E03f863a0C30C2cF029C;
-        }
-        return weth;
-    }
-
     function want() public view returns(address) {
         address tokenAddress = _acceptedToken.getUnderlyingToken();
         if ( tokenAddress == address(0) ) {
@@ -257,10 +205,6 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
         require(depositsEnabled, "Deposits Disabled");
         uint256 _pool = this.treasuryBalance();
         console.log("_pool", _pool);
-        //address tokenAddress = _acceptedToken.getUnderlyingToken();
-        //if ( tokenAddress == address(0) ) {
-        //    tokenAddress = wethAddress();
-        //}
         IERC20 token = IERC20(tokenAddress);
         if ( tokenAddress == want() ) {
             token.transferFrom(msg.sender, treasury, _amount);
@@ -279,7 +223,6 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
                 token.transferFrom(address(this), treasury, _amount);
             }
         }
-        //token.transfer(treasury, _amount);
         uint256 _after = this.treasuryBalance();
         console.log("before, after", _pool, _after);
         _amount = _after.sub(_pool); // Additional check for deflationary tokens

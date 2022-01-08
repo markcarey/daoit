@@ -10,14 +10,16 @@ const superAppJSON = require("../artifacts/contracts/DAOSuperApp.sol/DAOSuperApp
 const appFactoryAddress = "0xA110e05133521C86E82fF5D1D482344A46CDBDF9";
 //const govFactoryAddress = appFactoryAddress;
 
-const superAppAddress = "0xF612EC5a8B1EB0804C17Ed1f12c63DDF4cD72F03";
-const daoTokenAddress = "0xf1613f0C39D010c736d02eE609beEfdA136115Db";
+const superAppAddress = "0xeA857995adBe6160713DfC116d83FEDDa125D6A6";
+const daoTokenAddress = "0x1140BDd4CaC1660E1bDa75af8113868E0E3B722E";
 const superTokenAddress = "0x20374426b9c1f98110dd6E965feD264d6102b5c2";
 
-const governorAddress = "0xE427FFa65AD2f2f3265F7F9c803E022A05A0c286";
+const governorAddress = "0x973332DBCbbf08107B9eA499847884603A54Ef51";
 const timelockAddress = "0xE4Ba755aB8da3bC521C489c140E3E4A1a4f0b3D3";
 
-
+const govJSON = require("../artifacts/contracts/governance/Governor.sol/DAOGovernor.json");
+const execJSON = require("../artifacts/contracts/DAOit.sol/DAOExecutor.json");
+const appJSON = require("../artifacts/contracts/DAOSuperApp.sol/DAOSuperApp.json");
 
 var addr = {};
 var chain = "rinkeby";
@@ -2642,8 +2644,60 @@ let CFAv1 = new ethers.Contract(
   signer
 );
 
+let gov = new ethers.Contract(
+  governorAddress,
+  govJSON.abi,
+  signer
+);
+let app = new ethers.Contract(
+  superAppAddress,
+  appJSON.abi,
+  signer
+);
+
+
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function queue() {
+  const fromTally = "0x6370920e000000000000000000000000d89311d9613b6b3fc45e2ba64e4d8b5161dc4c580000000000000000000000000000000000000000000000000000b5e620f48000";
+  const targets = ["0xeA857995adBe6160713DfC116d83FEDDa125D6A6"];
+  const values = [0];
+  var cdata = app.interface.encodeFunctionData("grant", [PUBLIC_KEY, "20000000000000000000"]);
+  console.log("cdata", cdata);
+  const calldatas = [fromTally];
+  var descString = "Grant tokens js proposal";
+  //descString = "Grant me even more tokens grant more tokens to Mark";
+  const descBytes = ethers.utils.id(descString);
+  
+  //await gov.propose(
+  //  targets,
+  //  values,
+  //  [cdata],
+  //  descString
+  //);
+  var id = await gov.hashProposal(
+    targets,
+    values,
+    [cdata],
+    descBytes
+  );
+  var state = await gov.state(id);
+  console.log("state", state);
+  //var q = await gov.queue(
+  //  targets,
+  //  values,
+  //  [cdata],
+  //  descBytes
+  //);
+  var e = await gov.execute(
+    targets,
+    values,
+    [cdata],
+    descBytes
+  );
+  console.log(id);
 }
 
 async function openStream(sToken, flowRateBySeconds) {
@@ -2791,7 +2845,8 @@ async function deployAppFactory() {
   await sleep(15000);
 }
 
-deployAppFactory()
+queue()
+//deployAppFactory()
 //createApp("The App28", "APP28", addr.WETHx)
 //createGov(daoTokenAddress, true, 30)
  //setNonce()

@@ -93,7 +93,7 @@ async function main(stf) {
     var c = {};
     var result;
 
-    var v = "11";
+    var v = "13";
     const tokenSalt = ethers.utils.id("TOKEN"+v);
     const appSalt = ethers.utils.id("APP"+v);
     const govSalt = ethers.utils.id("GOV"+v);
@@ -137,20 +137,20 @@ async function main(stf) {
 
 
     result = await c2factory.deploy(tokenJSON.bytecode, tokenSalt);
-    await result.wait(5);
+    await result.wait();
 
     result = await c2factory.deploy(appJSON.bytecode, appSalt);
-    await result.wait(5);
+    await result.wait();
 
     result = await c2factory.deploy(govJSON.bytecode, govSalt);
-    await result.wait(5);
+    await result.wait();
 
     result = await c2factory.deploy(execJSON.bytecode, execSalt);
-    await result.wait(5);
+    await result.wait();
     
     result = await c2factory.deploy(appFactoryJSON.bytecode, factorySalt);
     await sleep(25000);
-    await result.wait(5);
+    await result.wait();
 
     //const deployedAppFactory = await factoryFactory.createDaoFactory(
     //  stf,
@@ -171,8 +171,9 @@ async function main(stf) {
     //console.log("govFactory deployed to address:", govFactory.address);
  }
  
-main("0xd465e36e607d493cd4CC1e83bea275712BECd5E0") // rinkeby
+// main("0xd465e36e607d493cd4CC1e83bea275712BECd5E0") // rinkeby
 // main("0x200657E2f123761662567A1744f9ACAe50dF47E6") // mumbai
+main("0x2C90719f25B10Fc5646c82DA3240C76Fa5BcCF34") // polygon
    .then(() => process.exit(0))
    .catch(error => {
      console.error(error);
