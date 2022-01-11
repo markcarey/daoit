@@ -309,47 +309,51 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
         );
       } else if (inFlowRate == int96(0)) {
         // @dev if inFlowRate is zero, delete outflow.
-        (newCtx, ) = _host.callAgreementWithContext(
-            _cfa,
-            abi.encodeWithSelector(
-                _cfa.deleteFlow.selector,
-                daoToken,
-                address(this),
-                customer,
-                new bytes(0) // placeholder
-            ),
-            "0x",
-            newCtx
-        );
-        // @dev Reduce the outflow to treasury.
-        if ( treasuryFlowRate - flowRates[customer] == int96(0) ) {
-            // we need to delete the outflow to treasury
+        if ( daoTokenFlowRate > int96(0) ) {
+            // only if they are receiving a stream of shares
             (newCtx, ) = _host.callAgreementWithContext(
                 _cfa,
                 abi.encodeWithSelector(
                     _cfa.deleteFlow.selector,
-                    _acceptedToken,
+                    daoToken,
                     address(this),
-                    treasury,
+                    customer,
                     new bytes(0) // placeholder
                 ),
                 "0x",
                 newCtx
             );
-        } else {
-            // there is still flow after reduction, so updateFlow
-            (newCtx, ) = _host.callAgreementWithContext(
-                _cfa,
-                abi.encodeWithSelector(
-                    _cfa.updateFlow.selector,
-                    _acceptedToken,
-                    treasury,
-                    treasuryFlowRate - flowRates[customer],
-                    new bytes(0) // placeholder
-                ),
-                "0x",
-                newCtx
-            );
+
+            // @dev Reduce the outflow to treasury.
+            if ( treasuryFlowRate - flowRates[customer] == int96(0) ) {
+                // we need to delete the outflow to treasury
+                (newCtx, ) = _host.callAgreementWithContext(
+                    _cfa,
+                    abi.encodeWithSelector(
+                        _cfa.deleteFlow.selector,
+                        _acceptedToken,
+                        address(this),
+                        treasury,
+                        new bytes(0) // placeholder
+                    ),
+                    "0x",
+                    newCtx
+                );
+            } else {
+                // there is still flow after reduction, so updateFlow
+                (newCtx, ) = _host.callAgreementWithContext(
+                    _cfa,
+                    abi.encodeWithSelector(
+                        _cfa.updateFlow.selector,
+                        _acceptedToken,
+                        treasury,
+                        treasuryFlowRate - flowRates[customer],
+                        new bytes(0) // placeholder
+                    ),
+                    "0x",
+                    newCtx
+                );
+            }
         }
       } else {
           // @dev If there is no existing outflow, then create new flow to equal inflow
@@ -448,7 +452,6 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
         returns (bytes memory newCtx)
     {
         // According to the app basic law, we should never revert in a termination callback
-        if (!streamsEnabled) return _ctx;
         if (!_isSameToken(_superToken) || !_isCFAv1(_agreementClass)) return _ctx;
         if (msg.sender != address(_host)) return _ctx;
         (address customer,) = abi.decode(_agreementData, (address, address));
