@@ -98,7 +98,7 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
             SuperAppDefinitions.BEFORE_AGREEMENT_CREATED_NOOP |
             SuperAppDefinitions.BEFORE_AGREEMENT_UPDATED_NOOP |
             SuperAppDefinitions.BEFORE_AGREEMENT_TERMINATED_NOOP;
-        _host.registerAppByFactory(ISuperApp(address(this)), configWord);  //TODO: uncomment this!!!!
+        _host.registerAppByFactory(ISuperApp(address(this)), configWord);
 
         daoToken = ISuperToken(_daoToken);
         underlying = DAOToken(_underlying);
