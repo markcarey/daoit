@@ -2,8 +2,6 @@
 
 pragma solidity >= 0.8.0;
 
-import "hardhat/console.sol";
-
 import {
     ISuperfluid,
     ISuperToken,
@@ -87,7 +85,6 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
         require(address(_daoToken) != address(0), "daoToken is zero address");
         __AccessControl_init_unchained();
         __AccessControlEnumerable_init_unchained();
-        console.log("before 1820 registry");
         IERC1820RegistryUpgradeable _erc1820 = IERC1820RegistryUpgradeable(0x1820a4B7618BdE71Dce8cdc73aAB6C95905faD24);
         _erc1820.setInterfaceImplementer(address(this), keccak256("ERC777TokensRecipient"), address(this));
 
@@ -136,16 +133,12 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
 
     function treasuryBalance() external view returns (uint256) {
         uint256 sTotal = _acceptedToken.balanceOf(treasury);
-        console.log("sTotal", sTotal);
         address tokenAddress = _acceptedToken.getUnderlyingToken();
-        console.log("tokenAddress", tokenAddress);
         if ( tokenAddress == address(0) ) {
             tokenAddress = weth;
         }
-        console.log("tokenAddress", tokenAddress);
         IERC20 token = IERC20(tokenAddress);
         uint256 uTotal = token.balanceOf(treasury);
-        console.log("uTotal", uTotal);
         return sTotal.add(uTotal);
     }
 
@@ -167,29 +160,22 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
     function _updateReserves(int96 daoTokenFlowRate) internal returns (uint256) {
         int96 daoOutFlow = (getDaoTokenNetFlow() - daoTokenFlowRate) * -1;
         uint256 currentReserves = daoToken.balanceOf(address(this));
-        console.log("currentReserves", currentReserves);
         uint256 minReserves = uint256(uint96(daoOutFlow)).mul(2419200); // 28 days
-        console.log("minReserves", minReserves);
         if ( currentReserves < minReserves ) {
             uint256 newReserves = uint256(uint96(daoOutFlow)).mul(3024000); // 35 days
-            console.log("newReserves", newReserves);
             uint256 amt = newReserves.sub(currentReserves);
-            console.log("amt to mint", amt);
             underlying.mint(address(this), amt);
             daoToken.upgrade(amt);
         }
         currentReserves = daoToken.balanceOf(address(this));
-        console.log("currentReserves", currentReserves);
         return currentReserves;
     }
 
     function sharePrice() external view returns (uint256) {
         uint256 supply = this.totalSupply();
         if ( supply == 0 ) return 100;
-        console.log("supply", supply);
         uint256 treasuryBal = this.treasuryBalance();
         if ( treasuryBal == 0 ) return 100;
-        console.log("treasuryBal", treasuryBal);
         return supply.mul(100).div(treasuryBal);
     }
 
@@ -204,7 +190,6 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
     function deposit(address tokenAddress, uint _amount, address beneficiary) public nonReentrant {
         require(depositsEnabled, "Deposits Disabled");
         uint256 _pool = this.treasuryBalance();
-        console.log("_pool", _pool);
         IERC20 token = IERC20(tokenAddress);
         if ( tokenAddress == want() ) {
             token.transferFrom(msg.sender, treasury, _amount);
@@ -224,24 +209,19 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
             }
         }
         uint256 _after = this.treasuryBalance();
-        console.log("before, after", _pool, _after);
         _amount = _after.sub(_pool); // Additional check for deflationary tokens
         if (_amount == 0) {
             return;
         }
         uint256 shares = 0;
         if ( ( this.totalSupply() == 0 ) || ( _pool == 0 ) ) {
-            console.log("totalSupply() or _pool is zero");
             shares = _amount;
         } else {
-            console.log("do the division");
             shares = (_amount.mul(this.totalSupply())).div(_pool);
         }
-        console.log("deposit.shares", shares);
         if ( beneficiary == address(0) ) {
             beneficiary = msg.sender;
         }
-        console.log("beneficiary", beneficiary);
         if (shares > 0) {
             underlying.mint(beneficiary, shares);
         }
@@ -284,21 +264,14 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
 
       uint256 multiplier = this.sharePrice();
       int96 newDaoTokenFlowRate = daoTokenFlowRate;
-      console.log("multiplier (sharePrice)", multiplier);
       if (multiplier != 0) {
           newDaoTokenFlowRate = int96(int256( uint256(uint96(inFlowRate)).mul(multiplier).div(100) ));
       }
-      console.log("inFlowRate,daoTokenFlowRate,newDaoTokenFlowRate,treasuryFlowRate");
-      console.logInt(inFlowRate);
-      console.logInt(daoTokenFlowRate);
-      console.logInt(newDaoTokenFlowRate);
-      console.logInt(treasuryFlowRate);
 
       _updateReserves(newDaoTokenFlowRate);
 
       if ( (daoTokenFlowRate != int96(0)) && (inFlowRate != int96(0)) ){
         // @dev if there already exists an outflow, then update it.
-        console.log("dao token flow exists and inFlow exists");
         (newCtx, ) = _host.callAgreementWithContext(
             _cfa,
             abi.encodeWithSelector(
@@ -312,7 +285,6 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
             newCtx
         );
         // @dev Update the outflow to treasury.
-        console.log("now increase treasury flow + inFlowRate");
         (newCtx, ) = _host.callAgreementWithContext(
             _cfa,
             abi.encodeWithSelector(
@@ -417,7 +389,6 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
         returns (bytes memory newCtx)
     {
         address customer = _host.decodeCtx(_ctx).msgSender;
-        console.log("b4 _updateOutflow");
         return _updateOutflow(_ctx, customer, _agreementId);
     }
 
@@ -435,7 +406,6 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
         onlyIfStreamsEnabled
         returns (bytes memory newCtx)
     {
-        console.log("start afterAgreementUpdated");
         address customer = _host.decodeCtx(_ctx).msgSender;
         return _updateOutflow(_ctx, customer, _agreementId);
     }
@@ -450,15 +420,12 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
         external override
         returns (bytes memory newCtx)
     {
-        console.log("start afterAgreementTerminated");
         // According to the app basic law, we should never revert in a termination callback
         if (!streamsEnabled) return _ctx;
         if (!_isSameToken(_superToken) || !_isCFAv1(_agreementClass)) return _ctx;
         if (msg.sender != address(_host)) return _ctx;
         (address customer,) = abi.decode(_agreementData, (address, address));
         (,int96 inFlowRate,,) = _cfa.getFlowByID(_superToken, _agreementId);
-        console.log("inFlowRate:");
-        console.logInt(inFlowRate);
         return _updateOutflow(_ctx, customer, _agreementId);
     }
     function getNetFlow() public view returns (int96) {

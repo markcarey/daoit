@@ -2,9 +2,6 @@
 
 pragma solidity >= 0.8.0;
 
-import "hardhat/console.sol";
-
-
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol";
@@ -74,25 +71,16 @@ contract DAOFactory is Initializable {
         address cfa,
         address router
     ) external returns (address) {
-        //console.log(block.timestamp);
         // step 1: create super token
-        //bytes32 salt = keccak256(abi.encodePacked(name, symbol));
-        //console.logBytes32(salt);
-        //DAOToken daoToken = DAOToken(address(Clones.cloneDeterministic(tokenImplementation, salt)));
         DAOToken daoToken = _createDaoToken(name, symbol);
-        console.log("daoToken", address(daoToken));
         // step 2: create Super wrapper:
-        //ISuperToken superDaoToken = _superTokenFactory.createERC20Wrapper(IERC20(address(daoToken)), uint8(18), ISuperTokenFactory.Upgradability.FULL_UPGRADABE, string(abi.encodePacked("Super ", name)), string(abi.encodePacked(symbol, "x")));
         ISuperToken superDaoToken = _createSuperToken(daoToken, name, symbol);
         // step 3: create super app
         address superApp = _createSuperApp(name, symbol);
-        console.log("supr app", address(superApp));
         // step 4: initialize dao token
         _initDaoToken(daoToken, name, symbol, superApp);
-        console.log("after daoToken init");
         // step 4: initialize superApp
         address futureTimelock = Clones.predictDeterministicAddress(timelockImplementation, keccak256(abi.encodePacked(address(daoToken))), address(this));
-        console.log("futureTimelock", futureTimelock);
         _initSuperApp(
             superApp,
             daoToken, 
@@ -104,14 +92,12 @@ contract DAOFactory is Initializable {
             cfa,
             router
         );
-        console.log("after superApp init");
         emit DAOSuperAppCreated(msg.sender, address(superApp), address(daoToken), address(superDaoToken));
         return superApp;
     }
 
     function _createDaoToken(string memory name, string memory symbol) internal returns(DAOToken) {
         bytes32 salt = keccak256(abi.encodePacked(name, symbol));
-        console.logBytes32(salt);
         DAOToken daoToken = DAOToken(address(Clones.cloneDeterministic(tokenImplementation, salt)));
         return daoToken;
     }
@@ -165,15 +151,9 @@ contract DAOFactory is Initializable {
     );
 
     function createGoverance(address token, bool vetoable, uint256 votingPeriod) external returns(address) {
-        //address timelock = new TimelockControllerUpgradeable();
         bytes32 salt = keccak256(abi.encodePacked(token));
-        console.logBytes32(salt);
-        //DAOExecutor timelock = DAOExecutor( payable(Create2.deploy(0, salt, type(DAOExecutor).creationCode)) );
         DAOExecutor timelock = DAOExecutor( payable(Clones.cloneDeterministic(timelockImplementation, salt)) );
-        console.log("timelock", address(timelock));
-        //DAOGovernor governor = new DAOGovernor();
         DAOGovernor governor = DAOGovernor( payable(Clones.cloneDeterministic(governorImplementation, salt)) );
-        console.log("governor", address(governor));
 
         address[] memory proposers = new address[](2);
         proposers[0] = address(governor);
