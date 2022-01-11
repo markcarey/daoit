@@ -268,8 +268,8 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
     {
       newCtx = ctx;
       (,int96 inFlowRate,,) = _cfa.getFlowByID(_acceptedToken, agreementId);
-      (,int96 daoTokenFlowRate,,) = _cfa.getFlow(daoToken, address(this), customer);
       (,int96 treasuryFlowRate,,) = _cfa.getFlow(_acceptedToken, address(this), treasury);
+      (,int96 daoTokenFlowRate,,) = _cfa.getFlow(daoToken, address(this), customer);
       if (inFlowRate < 0 ) inFlowRate = -inFlowRate; // Fixes issue when inFlowRate is negative
 
       uint256 multiplier = this.sharePrice();
@@ -322,18 +322,35 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
             newCtx
         );
         // @dev Reduce the outflow to treasury.
-        (newCtx, ) = _host.callAgreementWithContext(
-            _cfa,
-            abi.encodeWithSelector(
-                _cfa.updateFlow.selector,
-                _acceptedToken,
-                treasury,
-                treasuryFlowRate - flowRates[customer],
-                new bytes(0) // placeholder
-            ),
-            "0x",
-            newCtx
-        );
+        if ( treasuryFlowRate - flowRates[customer] == int96(0) ) {
+            // we need to delete the outflow to treasury
+            (newCtx, ) = _host.callAgreementWithContext(
+                _cfa,
+                abi.encodeWithSelector(
+                    _cfa.deleteFlow.selector,
+                    _acceptedToken,
+                    address(this),
+                    treasury,
+                    new bytes(0) // placeholder
+                ),
+                "0x",
+                newCtx
+            );
+        } else {
+            // there is still flow after reduction, so updateFlow
+            (newCtx, ) = _host.callAgreementWithContext(
+                _cfa,
+                abi.encodeWithSelector(
+                    _cfa.updateFlow.selector,
+                    _acceptedToken,
+                    treasury,
+                    treasuryFlowRate - flowRates[customer],
+                    new bytes(0) // placeholder
+                ),
+                "0x",
+                newCtx
+            );
+        }
       } else {
           // @dev If there is no existing outflow, then create new flow to equal inflow
           (newCtx, ) = _host.callAgreementWithContext(
