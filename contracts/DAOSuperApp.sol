@@ -189,28 +189,38 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
 
     function deposit(address tokenAddress, uint _amount, address beneficiary) public nonReentrant {
         require(depositsEnabled, "Deposits Disabled");
+        // chedck the treasury balance of preferred token before deposit
         uint256 _pool = this.treasuryBalance();
         IERC20 token = IERC20(tokenAddress);
         if ( tokenAddress == want() ) {
+            // the token is our preferred token
             token.transferFrom(msg.sender, treasury, _amount);
         } else {
+            // the token is *not* our preferred token
+            // transfer it anyway and try to swap if for preferred
             token.transferFrom(msg.sender, address(this), _amount);
             token.approve(router, _amount);
             IUniswapV2Router02 uniswapRouter = IUniswapV2Router02(router);
             address[] memory path = new address[](2);
             path[0] = tokenAddress;
             path[1] = want();
+            // try to swap on uniswap v2 (or Sushi, Quikswap, etc.)
             try uniswapRouter.swapExactTokensForTokens(_amount, 0, path, treasury, block.timestamp) {
-                // it worked!
+                // it worked -- the treasurty balance of our preferred token has grown
             }
             catch {
-                // transfer the deposited tokens as is:
+                // swap failed
+                // transfer the deposited token to treasury as is
                 token.transferFrom(address(this), treasury, _amount);
             }
         }
+        // treasury balance of preferred token after the deposit
         uint256 _after = this.treasuryBalance();
-        _amount = _after.sub(_pool); // Additional check for deflationary tokens
+        _amount = _after.sub(_pool);
         if (_amount == 0) {
+            // swap for preferred token failed
+            // no shares issue because we can't calculate
+            // DAO could later grant shares via a proposal
             return;
         }
         uint256 shares = 0;

@@ -11,7 +11,7 @@ var web3;
 var BN;
 var blockExplorer = ""
 var addr = {};
-//
+
 var factories = {};
 factories.rinkeby =     "0xAa18cDA7c7c8894595B4e6bdEc7647Ff13e663ae";
 factories.mumbai =      "0xAa18cDA7c7c8894595B4e6bdEc7647Ff13e663ae";
@@ -21,10 +21,11 @@ var factoryAddress = factories[chain];
 function getFactory() {
     var rpcURL = rpcURLs[chain];
     factoryAddress = factories[chain];
-    rpcURL = "localhost:8545";                  //localhost!!!!
-    //web3 = AlchemyWeb3.createAlchemyWeb3("wss://"+rpcURL);
-    web3 = AlchemyWeb3.createAlchemyWeb3("http://"+rpcURL); // localhost!!!!
-    const prov = {"url": "http://"+rpcURL};           //localhost!!!!
+    //rpcURL = "localhost:8545";                  //localhost!!!!
+    web3 = AlchemyWeb3.createAlchemyWeb3("wss://"+rpcURL);
+    //web3 = AlchemyWeb3.createAlchemyWeb3("http://"+rpcURL); // localhost!!!!
+    //const prov = {"url": "http://"+rpcURL};           //localhost!!!!
+    const prov = {"url": "https://"+rpcURL};
     var provider = new ethers.providers.JsonRpcProvider(prov);
 
     factory = new web3.eth.Contract(factoryABI, factoryAddress);
