@@ -1,4 +1,4 @@
-var chain = "polygon";
+var chain = "rinkeby";
 
 var rpcURLs = {};
 rpcURLs.rinkeby = "eth-rinkeby.alchemyapi.io/v2/n_mDCfTpJ8I959arPP7PwiOptjubLm57";
@@ -13,7 +13,7 @@ var blockExplorer = ""
 var addr = {};
 
 var factories = {};
-factories.rinkeby =     "0xAa18cDA7c7c8894595B4e6bdEc7647Ff13e663ae";
+factories.rinkeby =     "0x5A75A669EA75575F3D36AFD0b57AbfCbc79EAa75";
 factories.mumbai =      "0xAa18cDA7c7c8894595B4e6bdEc7647Ff13e663ae";
 factories.polygon =     "0x1d8e39704619E07dd0bd27CadBa0D6F607e15977"; // localhost:polygon
 var factoryAddress = factories[chain];

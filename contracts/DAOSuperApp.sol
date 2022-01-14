@@ -278,7 +278,9 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
           newDaoTokenFlowRate = int96(int256( uint256(uint96(inFlowRate)).mul(multiplier).div(100) ));
       }
 
-      _updateReserves(newDaoTokenFlowRate);
+      if ( inFlowRate - flowRates[customer] > int96(0) ) {
+          _updateReserves(newDaoTokenFlowRate);
+      }
 
       if ( (daoTokenFlowRate != int96(0)) && (inFlowRate != int96(0)) ){
         // @dev if there already exists an outflow, then update it.
@@ -323,7 +325,9 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
                 "0x",
                 newCtx
             );
+        }
 
+        if ( flowRates[customer] > int96(0) ) {
             // @dev Reduce the outflow to treasury.
             if ( treasuryFlowRate - flowRates[customer] == int96(0) ) {
                 // we need to delete the outflow to treasury

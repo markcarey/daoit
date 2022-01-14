@@ -67,12 +67,12 @@ module.exports = {
     polygon: {
       url: POLYGON_API_URL,
       accounts: [`0x${PRIVATE_KEY}`],
-      gasMultiplier: 3,
-      gasPrice: 1000000000 * 2
+      //gasMultiplier: 3,
+      //gasPrice: 1000000000 * 2
     }
    },
    etherscan: {
-    apiKey: POLYSCAN_API_KEY
+    apiKey: ETHERSCAN_API_KEY
   }
 }
 

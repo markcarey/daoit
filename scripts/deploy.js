@@ -69,6 +69,7 @@ async function main(stf) {
     const tokenContract = await ethers.getContractFactory("DAOToken");
     const token = await tokenContract.deploy();
     console.log("token deployed to address:", token.address);
+    //return;
     const appContract = await ethers.getContractFactory("DAOSuperApp");
     const app = await appContract.deploy();
     console.log("app deployed to address:", app.address);
@@ -93,7 +94,7 @@ async function main(stf) {
     var c = {};
     var result;
 
-    var v = "13";
+    var v = "17";
     const tokenSalt = ethers.utils.id("TOKEN"+v);
     const appSalt = ethers.utils.id("APP"+v);
     const govSalt = ethers.utils.id("GOV"+v);
@@ -171,9 +172,9 @@ async function main(stf) {
     //console.log("govFactory deployed to address:", govFactory.address);
  }
  
-// main("0xd465e36e607d493cd4CC1e83bea275712BECd5E0") // rinkeby
+ main("0xd465e36e607d493cd4CC1e83bea275712BECd5E0") // rinkeby
 // main("0x200657E2f123761662567A1744f9ACAe50dF47E6") // mumbai
-main("0x2C90719f25B10Fc5646c82DA3240C76Fa5BcCF34") // polygon
+//main("0x2C90719f25B10Fc5646c82DA3240C76Fa5BcCF34") // polygon
    .then(() => process.exit(0))
    .catch(error => {
      console.error(error);
@@ -181,5 +182,5 @@ main("0x2C90719f25B10Fc5646c82DA3240C76Fa5BcCF34") // polygon
    });
 
 // npx hardhat run scripts/deploy.js --network localhost
-// npx hardhat verify --network rinkeby DEPLOYED_CONTRACT_ADDRESS
+// npx hardhat verify --network rinkeby 0x1403F69Bae0E21d4126A1592BE86b0018eb27207
 // npx hardhat node --fork https://eth-rinkeby.alchemyapi.io/v2/n_mDCfTpJ8I959arPP7PwiOptjubLm57 --fork-block-number 9734005
