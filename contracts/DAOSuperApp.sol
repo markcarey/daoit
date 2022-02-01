@@ -11,21 +11,8 @@ import {
 } from "@superfluid-finance/ethereum-contracts/contracts/interfaces/superfluid/ISuperfluid.sol";
 
 import {
-    ISuperTokenFactory
-}
-from "@superfluid-finance/ethereum-contracts/contracts/interfaces/superfluid/ISuperTokenFactory.sol";
-
-import {
     IConstantFlowAgreementV1
 } from "@superfluid-finance/ethereum-contracts/contracts/interfaces/agreements/IConstantFlowAgreementV1.sol";
-
-import { 
-    INativeSuperToken 
-} from "./superfluid-finance/ethereum-contracts/contracts/interfaces/tokens/INativeSuperToken.sol"; 
-
-import { 
-    NativeSuperTokenProxy 
-} from "./superfluid-finance/ethereum-contracts/contracts/tokens/NativeSuperToken.sol";
 
 import {
     SuperAppBase
@@ -44,9 +31,6 @@ import "./token/DAOToken.sol";
 
 import "@openzeppelin/contracts-upgradeable/governance/TimelockControllerUpgradeable.sol";
 import "./governance/Governor.sol";
-
-import "@openzeppelin/contracts/proxy/Clones.sol";
-import "@openzeppelin/contracts/utils/Create2.sol";
 
 import '@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol';
 
@@ -449,10 +433,9 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
         returns (bytes memory newCtx)
     {
         // According to the app basic law, we should never revert in a termination callback
-        if (!_isSameToken(_superToken) || !_isCFAv1(_agreementClass)) return _ctx;
-        if (msg.sender != address(_host)) return _ctx;
+        if ( !_isSameToken(_superToken) || !_isCFAv1(_agreementClass) || (msg.sender != address(_host)) ) return _ctx;
+        //if (msg.sender != address(_host)) return _ctx;
         (address customer,) = abi.decode(_agreementData, (address, address));
-        (,int96 inFlowRate,,) = _cfa.getFlowByID(_superToken, _agreementId);
         return _updateOutflow(_ctx, customer, _agreementId);
     }
     function getNetFlow() public view returns (int96) {

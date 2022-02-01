@@ -3,18 +3,17 @@
 pragma solidity >= 0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-
-import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 import "./token/DAOToken.sol";
-
 import "@openzeppelin/contracts-upgradeable/governance/TimelockControllerUpgradeable.sol";
 import "./governance/Governor.sol";
-
 import "@openzeppelin/contracts/proxy/Clones.sol";
 import "@openzeppelin/contracts/utils/Create2.sol";
+
+import {
+    ISuperTokenFactory
+}
+from "@superfluid-finance/ethereum-contracts/contracts/interfaces/superfluid/ISuperTokenFactory.sol";
 
 import './DAOSuperApp.sol';
 
@@ -37,6 +36,12 @@ contract DAOFactory is Initializable {
     address owner;
 
     ISuperTokenFactory private _superTokenFactory;
+
+    uint256 configWord =
+            SuperAppDefinitions.APP_LEVEL_FINAL |
+            SuperAppDefinitions.BEFORE_AGREEMENT_CREATED_NOOP |
+            SuperAppDefinitions.BEFORE_AGREEMENT_UPDATED_NOOP |
+            SuperAppDefinitions.BEFORE_AGREEMENT_TERMINATED_NOOP;
 
     constructor() {}
 
@@ -78,11 +83,6 @@ contract DAOFactory is Initializable {
         // step 3: create super app
         address superApp = _createSuperApp(name, symbol);
         // step 3.5: register the Super App
-        uint256 configWord =
-            SuperAppDefinitions.APP_LEVEL_FINAL |
-            SuperAppDefinitions.BEFORE_AGREEMENT_CREATED_NOOP |
-            SuperAppDefinitions.BEFORE_AGREEMENT_UPDATED_NOOP |
-            SuperAppDefinitions.BEFORE_AGREEMENT_TERMINATED_NOOP;
         ISuperfluid(host).registerAppByFactory(ISuperApp(superApp), configWord);
         // step 4: initialize dao token
         _initDaoToken(daoToken, name, symbol, superApp);
@@ -104,14 +104,12 @@ contract DAOFactory is Initializable {
     }
 
     function _createDaoToken(string memory name, string memory symbol) internal returns(DAOToken) {
-        bytes32 salt = keccak256(abi.encodePacked(name, symbol));
-        DAOToken daoToken = DAOToken(address(Clones.cloneDeterministic(tokenImplementation, salt)));
-        return daoToken;
+        //bytes32 salt = keccak256(abi.encodePacked(name, symbol));
+        return DAOToken(address(Clones.cloneDeterministic(tokenImplementation, keccak256(abi.encodePacked(name, symbol)))));
     }
 
     function _createSuperToken(DAOToken daoToken, string memory name, string memory symbol) internal returns(ISuperToken) {
-        ISuperToken superDaoToken = _superTokenFactory.createERC20Wrapper(IERC20(address(daoToken)), uint8(18), ISuperTokenFactory.Upgradability.FULL_UPGRADABE, string(abi.encodePacked("Super ", name)), string(abi.encodePacked(symbol, "x")));
-        return superDaoToken;
+        return _superTokenFactory.createERC20Wrapper(IERC20(address(daoToken)), uint8(18), ISuperTokenFactory.Upgradability.FULL_UPGRADABE, string(abi.encodePacked("Super ", name)), string(abi.encodePacked(symbol, "x")));
     }
 
     function _createSuperApp(string memory name, string memory symbol) internal returns(address) {
