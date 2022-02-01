@@ -277,36 +277,36 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
 
       if ( (daoTokenFlowRate != int96(0)) && (inFlowRate != int96(0)) ){
         // @dev if there already exists an outflow, then update it.
-        newCtx = cfaV1.updateFlowWithCtx(newCtx, customer, daoToken, newDaoTokenFlowRate);
+        newCtx = cfaV1.flowWithCtx(newCtx, customer, daoToken, newDaoTokenFlowRate);
         // @dev Update the outflow to treasury.
-        newCtx = cfaV1.updateFlowWithCtx(newCtx, treasury, _acceptedToken, treasuryFlowRate + (inFlowRate - flowRates[customer]));
+        newCtx = cfaV1.flowWithCtx(newCtx, treasury, _acceptedToken, treasuryFlowRate + (inFlowRate - flowRates[customer]));
       } else if (inFlowRate == int96(0)) {
         // @dev if inFlowRate is zero, delete outflow.
         if ( daoTokenFlowRate > int96(0) ) {
             // only if they are receiving a stream of shares
-            newCtx = cfaV1.deleteFlowWithCtx(newCtx, address(this), customer, daoToken);
+            newCtx = cfaV1.flowWithCtx(newCtx, customer, daoToken, int96(0));
         }
 
         if ( flowRates[customer] > int96(0) ) {
             // @dev Reduce the outflow to treasury.
             if ( treasuryFlowRate - flowRates[customer] == int96(0) ) {
                 // we need to delete the outflow to treasury
-                newCtx = cfaV1.deleteFlowWithCtx(newCtx, address(this), treasury, _acceptedToken);
+                newCtx = cfaV1.flowWithCtx(newCtx, treasury, _acceptedToken, int96(0));
             } else {
                 // there is still flow after reduction, so updateFlow
-                newCtx = cfaV1.updateFlowWithCtx(newCtx, treasury, _acceptedToken, treasuryFlowRate - flowRates[customer]);
+                newCtx = cfaV1.flowWithCtx(newCtx, treasury, _acceptedToken, treasuryFlowRate - flowRates[customer]);
             }
         }
       } else {
           // @dev If there is no existing outflow, then create new flow to equal inflow
-          newCtx = cfaV1.createFlowWithCtx(newCtx, customer, daoToken, newDaoTokenFlowRate);
+          newCtx = cfaV1.flowWithCtx(newCtx, customer, daoToken, newDaoTokenFlowRate);
           
           if ( treasuryFlowRate == int96(0) ) {
             // @dev If there is no existing outflow, then redirect to treasury
-            newCtx = cfaV1.createFlowWithCtx(newCtx, treasury, _acceptedToken, inFlowRate);
+            newCtx = cfaV1.flowWithCtx(newCtx, treasury, _acceptedToken, inFlowRate);
           } else {
             // @dev update the treasury flow
-            newCtx = cfaV1.updateFlowWithCtx(newCtx, treasury, _acceptedToken, treasuryFlowRate + inFlowRate);
+            newCtx = cfaV1.flowWithCtx(newCtx, treasury, _acceptedToken, treasuryFlowRate + inFlowRate);
           }
       }
       flowRates[customer] = inFlowRate;
