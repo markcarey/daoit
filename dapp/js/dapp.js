@@ -1,4 +1,4 @@
-var chain = "rinkeby";
+var chain = "polygon";
 
 var rpcURLs = {};
 rpcURLs.rinkeby = "eth-rinkeby.alchemyapi.io/v2/n_mDCfTpJ8I959arPP7PwiOptjubLm57";
@@ -14,18 +14,18 @@ var addr = {};
 
 var factories = {};
 factories.rinkeby =     "0x5A75A669EA75575F3D36AFD0b57AbfCbc79EAa75";
-factories.mumbai =      "0xAa18cDA7c7c8894595B4e6bdEc7647Ff13e663ae";
-factories.polygon =     "0x1d8e39704619E07dd0bd27CadBa0D6F607e15977"; // localhost:polygon
+factories.mumbai =      "0x44b50cD101Fe9A5E3d5718A4094da59Cc9F357dD"; // mumbai
+factories.polygon =     "0x39e787352664C3FF27dd718dE7746A505C199Fb0"; // localhost:polygon
 var factoryAddress = factories[chain];
 
 function getFactory() {
     var rpcURL = rpcURLs[chain];
     factoryAddress = factories[chain];
-    //rpcURL = "localhost:8545";                  //localhost!!!!
-    web3 = AlchemyWeb3.createAlchemyWeb3("wss://"+rpcURL);
-    //web3 = AlchemyWeb3.createAlchemyWeb3("http://"+rpcURL); // localhost!!!!
-    //const prov = {"url": "http://"+rpcURL};           //localhost!!!!
-    const prov = {"url": "https://"+rpcURL};
+    rpcURL = "localhost:8545";                  //localhost!!!!
+    //web3 = AlchemyWeb3.createAlchemyWeb3("wss://"+rpcURL);
+    web3 = AlchemyWeb3.createAlchemyWeb3("http://"+rpcURL); // localhost!!!!
+    const prov = {"url": "http://"+rpcURL};           //localhost!!!!
+    //const prov = {"url": "https://"+rpcURL};
     var provider = new ethers.providers.JsonRpcProvider(prov);
 
     factory = new web3.eth.Contract(factoryABI, factoryAddress);
@@ -124,7 +124,7 @@ chainName.mumbai = "Mumbai(Polygon) Testnet";
 //const cfa = new web3.eth.Contract(cfaABI, addr.cfa);
 //const host = new web3.eth.Contract(hostABI, addr.SuperHost);
 
-var gas = web3.utils.toHex(new BN('3000000000')); // 3 Gwei;
+var gas = web3.utils.toHex(new BN('30000000000')); // 30 Gwei;
 var dappChain = 4; // default to Rinkeby
 var userChain;
 var accounts;
@@ -330,6 +330,7 @@ $( document ).ready(function() {
         }
         status("deploying Token + Manager contract for " + name + " (" + symbol + ")...");
         $button.text("Deploying...");
+        console.log(name, symbol, accepted, addr.WETH, addr.SuperHost, addr.cfa, addr.router);
         const nonce = await web3.eth.getTransactionCount(accounts[0], 'latest');
         const tx = {
             'from': ethereum.selectedAddress,

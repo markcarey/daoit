@@ -77,6 +77,13 @@ contract DAOFactory is Initializable {
         ISuperToken superDaoToken = _createSuperToken(daoToken, name, symbol);
         // step 3: create super app
         address superApp = _createSuperApp(name, symbol);
+        // step 3.5: register the Super App
+        uint256 configWord =
+            SuperAppDefinitions.APP_LEVEL_FINAL |
+            SuperAppDefinitions.BEFORE_AGREEMENT_CREATED_NOOP |
+            SuperAppDefinitions.BEFORE_AGREEMENT_UPDATED_NOOP |
+            SuperAppDefinitions.BEFORE_AGREEMENT_TERMINATED_NOOP;
+        ISuperfluid(host).registerAppByFactory(ISuperApp(superApp), configWord);
         // step 4: initialize dao token
         _initDaoToken(daoToken, name, symbol, superApp);
         // step 4: initialize superApp

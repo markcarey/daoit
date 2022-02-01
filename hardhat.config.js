@@ -43,8 +43,8 @@ module.exports = {
       hardhat: {
         accounts: [{ privateKey: `0x${PRIVATE_KEY}`, balance: "10000000000000000000000"}],
         forking: {
-          url: API_URL,
-          blockNumber: 9734005  // assumes rinkeby fork
+          url: MUMBAI_API_URL,
+          blockNumber: 24222206  // assumes mumbai fork
         },
         loggingEnabled: true,
         gasMultiplier: 7,

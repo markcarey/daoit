@@ -93,13 +93,6 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
         _cfa = IConstantFlowAgreementV1(cfa);
         router = swapRouter;
 
-        uint256 configWord =
-            SuperAppDefinitions.APP_LEVEL_FINAL |
-            SuperAppDefinitions.BEFORE_AGREEMENT_CREATED_NOOP |
-            SuperAppDefinitions.BEFORE_AGREEMENT_UPDATED_NOOP |
-            SuperAppDefinitions.BEFORE_AGREEMENT_TERMINATED_NOOP;
-        _host.registerAppByFactory(ISuperApp(address(this)), configWord);
-
         daoToken = ISuperToken(_daoToken);
         underlying = DAOToken(_underlying);
         admin = owner;
