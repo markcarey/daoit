@@ -18,6 +18,10 @@ import {
     SuperAppBase
 } from "@superfluid-finance/ethereum-contracts/contracts/apps/SuperAppBase.sol";
 
+import {
+    CFAv1Library
+} from "./superfluid-finance/ethereum-contracts/contracts/apps/CFAv1Library.sol";
+
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol";
@@ -36,6 +40,9 @@ import '@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol';
 
 contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable, AccessControlEnumerableUpgradeable, ReentrancyGuardUpgradeable {
     using SafeMath for uint256;
+    using CFAv1Library for CFAv1Library.InitData;
+    
+    CFAv1Library.InitData public cfaV1;
 
     ISuperfluid _host;
     IConstantFlowAgreementV1 _cfa;
@@ -95,6 +102,15 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
 
         // super token accepted for streams
         _acceptedToken = ISuperToken(accepted);
+
+        cfaV1 = CFAv1Library.InitData(
+            _host,
+            IConstantFlowAgreementV1(
+                address(_host.getAgreementClass(
+                        keccak256("org.superfluid-finance.agreements.ConstantFlowAgreement.v1")
+                    ))
+                )
+        );
 
     }
 
@@ -261,124 +277,36 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
 
       if ( (daoTokenFlowRate != int96(0)) && (inFlowRate != int96(0)) ){
         // @dev if there already exists an outflow, then update it.
-        (newCtx, ) = _host.callAgreementWithContext(
-            _cfa,
-            abi.encodeWithSelector(
-                _cfa.updateFlow.selector,
-                daoToken,
-                customer,
-                newDaoTokenFlowRate,
-                new bytes(0) // placeholder
-            ),
-            "0x",
-            newCtx
-        );
+        newCtx = cfaV1.updateFlowWithCtx(newCtx, customer, daoToken, newDaoTokenFlowRate);
         // @dev Update the outflow to treasury.
-        (newCtx, ) = _host.callAgreementWithContext(
-            _cfa,
-            abi.encodeWithSelector(
-                _cfa.updateFlow.selector,
-                _acceptedToken,
-                treasury,
-                treasuryFlowRate + (inFlowRate - flowRates[customer]),
-                new bytes(0) // placeholder
-            ),
-            "0x",
-            newCtx
-        );
+        newCtx = cfaV1.updateFlowWithCtx(newCtx, treasury, _acceptedToken, treasuryFlowRate + (inFlowRate - flowRates[customer]));
       } else if (inFlowRate == int96(0)) {
         // @dev if inFlowRate is zero, delete outflow.
         if ( daoTokenFlowRate > int96(0) ) {
             // only if they are receiving a stream of shares
-            (newCtx, ) = _host.callAgreementWithContext(
-                _cfa,
-                abi.encodeWithSelector(
-                    _cfa.deleteFlow.selector,
-                    daoToken,
-                    address(this),
-                    customer,
-                    new bytes(0) // placeholder
-                ),
-                "0x",
-                newCtx
-            );
+            newCtx = cfaV1.deleteFlowWithCtx(newCtx, address(this), customer, daoToken);
         }
 
         if ( flowRates[customer] > int96(0) ) {
             // @dev Reduce the outflow to treasury.
             if ( treasuryFlowRate - flowRates[customer] == int96(0) ) {
                 // we need to delete the outflow to treasury
-                (newCtx, ) = _host.callAgreementWithContext(
-                    _cfa,
-                    abi.encodeWithSelector(
-                        _cfa.deleteFlow.selector,
-                        _acceptedToken,
-                        address(this),
-                        treasury,
-                        new bytes(0) // placeholder
-                    ),
-                    "0x",
-                    newCtx
-                );
+                newCtx = cfaV1.deleteFlowWithCtx(newCtx, address(this), treasury, _acceptedToken);
             } else {
                 // there is still flow after reduction, so updateFlow
-                (newCtx, ) = _host.callAgreementWithContext(
-                    _cfa,
-                    abi.encodeWithSelector(
-                        _cfa.updateFlow.selector,
-                        _acceptedToken,
-                        treasury,
-                        treasuryFlowRate - flowRates[customer],
-                        new bytes(0) // placeholder
-                    ),
-                    "0x",
-                    newCtx
-                );
+                newCtx = cfaV1.updateFlowWithCtx(newCtx, treasury, _acceptedToken, treasuryFlowRate - flowRates[customer]);
             }
         }
       } else {
           // @dev If there is no existing outflow, then create new flow to equal inflow
-          (newCtx, ) = _host.callAgreementWithContext(
-              _cfa,
-              abi.encodeWithSelector(
-                  _cfa.createFlow.selector,
-                  daoToken,
-                  customer,
-                  newDaoTokenFlowRate,
-                  new bytes(0) // placeholder
-              ),
-              "0x",
-              newCtx
-          );
+          newCtx = cfaV1.createFlowWithCtx(newCtx, customer, daoToken, newDaoTokenFlowRate);
           
           if ( treasuryFlowRate == int96(0) ) {
             // @dev If there is no existing outflow, then redirect to treasury
-            (newCtx, ) = _host.callAgreementWithContext(
-                _cfa,
-                abi.encodeWithSelector(
-                    _cfa.createFlow.selector,
-                    _acceptedToken,
-                    treasury,
-                    inFlowRate,
-                    new bytes(0) // placeholder
-                ),
-                "0x",
-                newCtx
-            );
+            newCtx = cfaV1.createFlowWithCtx(newCtx, treasury, _acceptedToken, inFlowRate);
           } else {
             // @dev update the treasury flow
-            (newCtx, ) = _host.callAgreementWithContext(
-                _cfa,
-                abi.encodeWithSelector(
-                    _cfa.updateFlow.selector,
-                    _acceptedToken,
-                    treasury,
-                    treasuryFlowRate + inFlowRate,
-                    new bytes(0) // placeholder
-                ),
-                "0x",
-                newCtx
-            );
+            newCtx = cfaV1.updateFlowWithCtx(newCtx, treasury, _acceptedToken, treasuryFlowRate + inFlowRate);
           }
       }
       flowRates[customer] = inFlowRate;
