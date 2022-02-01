@@ -72,7 +72,7 @@ module.exports = {
     }
    },
    etherscan: {
-    apiKey: ETHERSCAN_API_KEY
+    apiKey: POLYSCAN_API_KEY
   }
 }
 

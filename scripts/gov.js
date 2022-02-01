@@ -2839,12 +2839,12 @@ async function authFactory(app) {
     sfGovABI,
     signer
   );
-  await (await contract.authorizeAppFactory("0x3E14dC1b13c488a8d5D310918780c983bD5982E7", "0x39e787352664C3FF27dd718dE7746A505C199Fb0")).wait();
+  await (await contract.authorizeAppFactory("0x3E14dC1b13c488a8d5D310918780c983bD5982E7", "0x30DA70572B65762Aeb78D87F5BD34FdcD701B02C")).wait();
   await hre.network.provider.request({
     method: "hardhat_stopImpersonatingAccount",
     params: [owner],
   });
-  var isAuthed = await contract.isAuthorizedAppFactory("0x3E14dC1b13c488a8d5D310918780c983bD5982E7", "0x39e787352664C3FF27dd718dE7746A505C199Fb0");
+  var isAuthed = await contract.isAuthorizedAppFactory("0x3E14dC1b13c488a8d5D310918780c983bD5982E7", "0x30DA70572B65762Aeb78D87F5BD34FdcD701B02C");
   console.log("Factory authorized:" + isAuthed);
 }
 

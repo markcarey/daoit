@@ -286,28 +286,15 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
             // only if they are receiving a stream of shares
             newCtx = cfaV1.flowWithCtx(newCtx, customer, daoToken, int96(0));
         }
-
         if ( flowRates[customer] > int96(0) ) {
-            // @dev Reduce the outflow to treasury.
-            if ( treasuryFlowRate - flowRates[customer] == int96(0) ) {
-                // we need to delete the outflow to treasury
-                newCtx = cfaV1.flowWithCtx(newCtx, treasury, _acceptedToken, int96(0));
-            } else {
-                // there is still flow after reduction, so updateFlow
-                newCtx = cfaV1.flowWithCtx(newCtx, treasury, _acceptedToken, treasuryFlowRate - flowRates[customer]);
-            }
+            // @dev Reduce or delete the outflow to treasury.
+            newCtx = cfaV1.flowWithCtx(newCtx, treasury, _acceptedToken, treasuryFlowRate - flowRates[customer]);
         }
       } else {
           // @dev If there is no existing outflow, then create new flow to equal inflow
           newCtx = cfaV1.flowWithCtx(newCtx, customer, daoToken, newDaoTokenFlowRate);
-          
-          if ( treasuryFlowRate == int96(0) ) {
-            // @dev If there is no existing outflow, then redirect to treasury
-            newCtx = cfaV1.flowWithCtx(newCtx, treasury, _acceptedToken, inFlowRate);
-          } else {
-            // @dev update the treasury flow
-            newCtx = cfaV1.flowWithCtx(newCtx, treasury, _acceptedToken, treasuryFlowRate + inFlowRate);
-          }
+          // @dev create/update flow to treasury
+          newCtx = cfaV1.flowWithCtx(newCtx, treasury, _acceptedToken, treasuryFlowRate + inFlowRate);
       }
       flowRates[customer] = inFlowRate;
     }
@@ -362,7 +349,6 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
     {
         // According to the app basic law, we should never revert in a termination callback
         if ( !_isSameToken(_superToken) || !_isCFAv1(_agreementClass) || (msg.sender != address(_host)) ) return _ctx;
-        //if (msg.sender != address(_host)) return _ctx;
         (address customer,) = abi.decode(_agreementData, (address, address));
         return _updateOutflow(_ctx, customer, _agreementId);
     }
