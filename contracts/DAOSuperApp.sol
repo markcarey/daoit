@@ -57,7 +57,7 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
     bytes32 public constant MANAGER = keccak256("MANAGER_ROLE");
    
     address admin;
-    address treasury;
+    address public treasury;
     bool public depositsEnabled;
     bool public streamsEnabled;
 
@@ -169,6 +169,7 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
         if ( supply == 0 ) return 100;
         uint256 treasuryBal = this.treasuryBalance();
         if ( treasuryBal == 0 ) return 100;
+        // @dev number of shares for 100 _acceptedToken tokens
         return supply.mul(100).div(treasuryBal);
     }
 
@@ -199,12 +200,12 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
             path[1] = want();
             // try to swap on uniswap v2 (or Sushi, Quikswap, etc.)
             try uniswapRouter.swapExactTokensForTokens(_amount, 0, path, treasury, block.timestamp) {
-                // it worked -- the treasurty balance of our preferred token has grown
+                // it worked -- the treasury balance of our preferred token has grown
             }
             catch {
                 // swap failed
                 // transfer the deposited token to treasury as is
-                token.transferFrom(address(this), treasury, _amount);
+                token.transfer(treasury, _amount);
             }
         }
         // treasury balance of preferred token after the deposit
@@ -271,16 +272,13 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
           newDaoTokenFlowRate = int96(int256( uint256(uint96(inFlowRate)).mul(multiplier).div(100) ));
       }
 
-      if ( inFlowRate - flowRates[customer] > int96(0) ) {
-          _updateReserves(newDaoTokenFlowRate);
-      }
-
-      if ( (daoTokenFlowRate != int96(0)) && (inFlowRate != int96(0)) ){
-        // @dev if there already exists an outflow, then update it.
+      if ( inFlowRate - flowRates[customer] != int96(0) ) {
+        _updateReserves(newDaoTokenFlowRate);
+        // @dev if there already exists an outflow, then update it (or if it was deleted, re-create it)
         newCtx = cfaV1.flowWithCtx(newCtx, customer, daoToken, newDaoTokenFlowRate);
         // @dev Update the outflow to treasury.
         newCtx = cfaV1.flowWithCtx(newCtx, treasury, _acceptedToken, treasuryFlowRate + (inFlowRate - flowRates[customer]));
-      } else if (inFlowRate == int96(0)) {
+      } else  {
         // @dev if inFlowRate is zero, delete outflow.
         if ( daoTokenFlowRate > int96(0) ) {
             // only if they are receiving a stream of shares
@@ -290,11 +288,6 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
             // @dev Reduce or delete the outflow to treasury.
             newCtx = cfaV1.flowWithCtx(newCtx, treasury, _acceptedToken, treasuryFlowRate - flowRates[customer]);
         }
-      } else {
-          // @dev If there is no existing outflow, then create new flow to equal inflow
-          newCtx = cfaV1.flowWithCtx(newCtx, customer, daoToken, newDaoTokenFlowRate);
-          // @dev create/update flow to treasury
-          newCtx = cfaV1.flowWithCtx(newCtx, treasury, _acceptedToken, treasuryFlowRate + inFlowRate);
       }
       flowRates[customer] = inFlowRate;
     }
