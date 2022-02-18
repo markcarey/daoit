@@ -2829,22 +2829,27 @@ async function getSome(token, eoa) {
 
 async function authFactory(app) {
   const owner = "0x1EB3FAA360bF1f093F5A18d21f21f13D769d044A";
+  const daoFactory = "0x2AD9E27fE4041aAF834D7EF973329fBfD1C9B2B6";
+  await (await signer.sendTransaction({
+    to: owner,
+    value: ethers.utils.parseEther("1.0")
+  })).wait();
   await hre.network.provider.request({
     method: "hardhat_impersonateAccount",
     params: [owner],
   });
-  const signer = await ethers.getSigner(owner);
+  const imposter = await ethers.getSigner(owner);
   let contract = new ethers.Contract(
     "0x3AD3f7A0965Ce6f9358AD5CCE86Bc2b05F1EE087",
     sfGovABI,
-    signer
+    imposter
   );
-  await (await contract.authorizeAppFactory("0x3E14dC1b13c488a8d5D310918780c983bD5982E7", "0x30DA70572B65762Aeb78D87F5BD34FdcD701B02C")).wait();
+  await (await contract.authorizeAppFactory("0x3E14dC1b13c488a8d5D310918780c983bD5982E7", daoFactory)).wait();
   await hre.network.provider.request({
     method: "hardhat_stopImpersonatingAccount",
     params: [owner],
   });
-  var isAuthed = await contract.isAuthorizedAppFactory("0x3E14dC1b13c488a8d5D310918780c983bD5982E7", "0x30DA70572B65762Aeb78D87F5BD34FdcD701B02C");
+  var isAuthed = await contract.isAuthorizedAppFactory("0x3E14dC1b13c488a8d5D310918780c983bD5982E7", daoFactory);
   console.log("Factory authorized:" + isAuthed);
 }
 

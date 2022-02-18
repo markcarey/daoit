@@ -14,8 +14,8 @@ var addr = {};
 
 var factories = {};
 factories.rinkeby =     "0x5A75A669EA75575F3D36AFD0b57AbfCbc79EAa75";
-factories.mumbai =      "0x1c856793AD2863256A77Afd5A75d5259690e101f"; // mumbai
-factories.polygon =     "0x30DA70572B65762Aeb78D87F5BD34FdcD701B02C"; // localhost:polygon
+factories.mumbai =      "0xE89a31aFDdE8C7B294842E93467Af03aeafA20e1"; // mumbai
+factories.polygon =     "0x2AD9E27fE4041aAF834D7EF973329fBfD1C9B2B6"; // localhost:polygon
 var factoryAddress = factories[chain];
 
 function getFactory() {

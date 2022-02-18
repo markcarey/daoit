@@ -17,9 +17,13 @@
   },
   "homepage": "https://github.com/markcarey/daoit#readme",
   "devDependencies": {
-    "@nomiclabs/hardhat-ethers": "^2.0.2",
+    "@nomiclabs/hardhat-ethers": "^2.0.5",
     "@nomiclabs/hardhat-etherscan": "^2.1.8",
+    "@nomiclabs/hardhat-waffle": "^2.0.2",
     "@nomiclabs/hardhat-web3": "^2.0.0",
+    "chai": "^4.3.6",
+    "ethereum-waffle": "^3.4.0",
+    "ethers": "^5.5.4",
     "hardhat": "^2.7.0"
   },
   "dependencies": {
@@ -27,8 +31,9 @@
     "@openzeppelin/contracts": "^4.4.0",
     "@openzeppelin/contracts-upgradeable": "^4.4.0",
     "@superfluid-finance/ethereum-contracts": "^1.0.0-rc.7",
+    "@superfluid-finance/sdk-core": "^0.3.0",
     "@uniswap/v2-periphery": "^1.1.0-beta.0",
     "dotenv": "^10.0.0",
-    "ethers": "^5.5.2"
+    "graphql": "^16.3.0"
   }
 }

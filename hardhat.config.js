@@ -5,6 +5,7 @@ require('dotenv').config();
 require("@nomiclabs/hardhat-ethers");
 require("@nomiclabs/hardhat-etherscan");
 require("@nomiclabs/hardhat-web3");
+require("@nomiclabs/hardhat-waffle");
 const { API_URL, MUMBAI_API_URL, POLYGON_API_URL, PRIVATE_KEY, ETHERSCAN_API_KEY, POLYSCAN_API_KEY } = process.env;
 module.exports = {
   solidity: {
@@ -38,7 +39,7 @@ module.exports = {
       }
     ] 
 },
-   defaultNetwork: "rinkeby",
+   defaultNetwork: "mumbai",
    networks: {
       hardhat: {
         accounts: [{ privateKey: `0x${PRIVATE_KEY}`, balance: "10000000000000000000000"}],
