@@ -21,15 +21,20 @@ const tokenJSON = require("../artifacts/contracts/token/DAOToken.sol/DAOToken.js
 var sf, signer, superApp, sTokenAddress, sToken, underlyingTokenAddress, underlying, daoTokenAddress, superDaoTokenAddress, daoToken, sDaoToken, treasuryAddress, sharePrice, network;
 var logs = [];
 const debug = false;
+const logOutput = true;
 
-function log(msg) {
+function log(msg, data) {
     logs.push(msg);
+    if (data) {
+        logs.push(data);
+    }
     if (debug) {
-        console.log(msg);
+        console.log(msg, data);
     }
 }
 
 before('Get SuperApp details', async function () {
+    log('###Get SuperApp details');
     network = await ethers.provider.getNetwork();
     log(network);
     sf = await Framework.create({
@@ -61,6 +66,8 @@ before('Get SuperApp details', async function () {
 
 describe("SuperApp Config", async function(){
 
+    log("###" + this.title);
+
     it("should disable deposits", async function(){
         await (await superApp.setDepositsEnabled(false)).wait();
         expect(await superApp.depositsEnabled())
@@ -90,6 +97,7 @@ describe("SuperApp Config", async function(){
 describe("Deposits and Grants", async function(){
 
     it("should deposit 1 WETH", async function(){
+        log("###" + this.test.title);
         const tBalBefore = await underlying.balanceOf(treasuryAddress);
         const daoBalBefore = await daoToken.balanceOf(PUBLIC_KEY);
         const amt = '1000000000000000000'; // 1 WETH
@@ -104,6 +112,7 @@ describe("Deposits and Grants", async function(){
     });
 
     it("should deposit 100 DAI and swap to WETH and issue daoTokens", async function(){
+        log("###" + this.test.title);
         const daiAddress = "0x001B3B4d0F3714Ca98ba10F6042DaEbF0B1B7b6F"; // mumbai
         const dai = new ethers.Contract(daiAddress, tokenJSON.abi, signer);
         const tBalBefore = await underlying.balanceOf(treasuryAddress);
@@ -150,6 +159,7 @@ describe("Superfluid Streams", function () {
     });
 
     it("should start streaming to superApp", async function(){
+        log("###" + this.test.title);
         const flowRate = "31709791984";
         const createFlowOperation = sf.cfaV1.createFlow({
             "flowRate": flowRate,
@@ -204,6 +214,7 @@ describe("Superfluid Streams", function () {
     });
 
     it("should have canceled superDAOtoken outflow", async function(){
+        log("###" + this.test.title);
         const fromApp = await sf.cfaV1.getFlow({
             "superToken": superDaoTokenAddress.toLowerCase(),
             "sender": superAppAddress.toLowerCase(),
@@ -215,6 +226,7 @@ describe("Superfluid Streams", function () {
     });
 
     it("should cancel DaoToken flow to user but not outflow", async function(){
+        log("###" + this.test.title);
         sharePrice = await superApp.sharePrice();
         log("sharePrice", sharePrice);
         const flowRate = "31709791984";
@@ -252,6 +264,7 @@ describe("Superfluid Streams", function () {
     });
 
     it("should increase flow to superApp", async function(){
+        log("###" + this.test.title);
         sharePrice = await superApp.sharePrice();
         log("sharePrice", sharePrice);
         const flowRate = "31709799999";
@@ -298,6 +311,7 @@ describe("Superfluid Streams", function () {
     });
 
     it("should start 2 flows to superApp", async function(){
+        log("###" + this.test.title);
         sharePrice = await superApp.sharePrice();
         log("sharePrice", sharePrice);
         const flowRate = "31709791984";
@@ -351,6 +365,7 @@ describe("Superfluid Streams", function () {
     });
 
     it("should decrease one of 2 flows to superApp", async function(){
+        log("###" + this.test.title);
         sharePrice = await superApp.sharePrice();
         log("sharePrice", sharePrice);
         const fromAppBefore = await sf.cfaV1.getFlow({
@@ -431,6 +446,7 @@ describe("Superfluid Streams", function () {
     });
 
     after("sharePrice", async function(){
+        log("###" + this.test.title);
         sharePrice = await superApp.sharePrice();
         log("sharePrice", sharePrice);
         sToken = await sf.loadSuperToken(sTokenAddress);
@@ -441,4 +457,10 @@ describe("Superfluid Streams", function () {
         log("treasurySuperBalance", treasurySuperBalance);
     });
 
+});
+
+after("Console Logs", function(){
+    if (logOutput) {
+        console.log(logs);
+    }
 });

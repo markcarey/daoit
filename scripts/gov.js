@@ -2829,7 +2829,7 @@ async function getSome(token, eoa) {
 
 async function authFactory(app) {
   const owner = "0x1EB3FAA360bF1f093F5A18d21f21f13D769d044A";
-  const daoFactory = "0x2AD9E27fE4041aAF834D7EF973329fBfD1C9B2B6";
+  const daoFactory = "0x9b8D8513E257e98c78698260552082975844f7C4";
   await (await signer.sendTransaction({
     to: owner,
     value: ethers.utils.parseEther("1.0")
