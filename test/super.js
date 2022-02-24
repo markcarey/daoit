@@ -2,7 +2,7 @@ const { expect } = require("chai");
 const { ethers } = require("hardhat");
 const { Framework } = require("@superfluid-finance/sdk-core");
 
-var superAppAddress = "0x6293Ce1363c05F2B4aFa4aDbb28780fD9afEC048";
+var superAppAddress = "0x3e32a79c906CbA2CEc77d4e77fd77660f2797c21"; // mumbai
 
 require('dotenv').config();
 var BN = web3.utils.BN;
@@ -89,6 +89,18 @@ describe("SuperApp Config", async function(){
     it("should enable streams", async function(){
         await (await superApp.setStreamsEnabled(true)).wait();
         expect(await superApp.streamsEnabled())
+            .to.equal(true);
+    });
+
+    it("should disable swaps", async function(){
+        await (await superApp.setSwapEnabled(false)).wait();
+        expect(await superApp.swapEnabled())
+            .to.equal(false);
+    });
+
+    it("should enable swaps", async function(){
+        await (await superApp.setSwapEnabled(true)).wait();
+        expect(await superApp.swapEnabled())
             .to.equal(true);
     });
 

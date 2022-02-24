@@ -60,6 +60,7 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
     address public treasury;
     bool public depositsEnabled;
     bool public streamsEnabled;
+    bool public swapEnabled;
 
     function initialize(
         address _underlying,
@@ -92,6 +93,7 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
         // default to enabled, use functions to disable
         streamsEnabled = true;
         depositsEnabled = true;
+        swapEnabled = true;
 
         underlying.approve(address(daoToken), type(uint256).max);
 
@@ -191,6 +193,7 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
             token.transferFrom(msg.sender, treasury, _amount);
         } else {
             // the token is *not* our preferred token
+            require(swapEnabled, "Swaps Disabled");
             // transfer it anyway and try to swap if for preferred
             token.transferFrom(msg.sender, address(this), _amount);
             token.approve(router, _amount);
@@ -250,6 +253,9 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
     }
     function setStreamsEnabled(bool _streamsEnabled) external onlyRole(MANAGER) {
         streamsEnabled = _streamsEnabled;
+    }
+    function setSwapEnabled(bool _swapEnabled) external onlyRole(MANAGER) {
+        swapEnabled = _swapEnabled;
     }
 
     /**************************************************************************
