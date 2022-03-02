@@ -66,6 +66,8 @@ async function main(stf) {
     
     var salt;
 
+    if (false) {
+
     const tokenContract = await ethers.getContractFactory("DAOToken");
     const token = await tokenContract.deploy();
     console.log("token deployed to address:", token.address);
@@ -82,19 +84,23 @@ async function main(stf) {
 
     //return;
 
+    }
 
     //const appFactoryContract = await ethers.getContractFactory("DAOFactory");
     //const appFactory = await appFactoryContract.deploy();
     //console.log("appFactory deployed to address:", appFactory.address);
+    //return;
 
     //const factoryFactoryContract = await ethers.getContractFactory("FactoryFactory");
     //const factoryFactory = await factoryFactoryContract.deploy();
     //console.log("factoryFactory deployed to address:", factoryFactory.address);
 
+    
+
     var c = {};
     var result;
 
-    var v = "41";
+    var v = "V1";
     const tokenSalt = ethers.utils.id("TOKEN"+v);
     const appSalt = ethers.utils.id("APP"+v);
     const govSalt = ethers.utils.id("GOV"+v);
@@ -136,21 +142,23 @@ async function main(stf) {
       }
     });
 
+    const gasOptions = {"maxPriorityFeePerGas": "45000000000", "maxFeePerGas": "45000000016" };
 
-    result = await c2factory.deploy(tokenJSON.bytecode, tokenSalt);
+    result = await c2factory.deploy(tokenJSON.bytecode, tokenSalt, gasOptions);
+    console.log(result);
     await result.wait();
 
-    result = await c2factory.deploy(appJSON.bytecode, appSalt);
+    result = await c2factory.deploy(appJSON.bytecode, appSalt, gasOptions);
     await result.wait();
 
-    result = await c2factory.deploy(govJSON.bytecode, govSalt);
+    result = await c2factory.deploy(govJSON.bytecode, govSalt, gasOptions);
     await result.wait();
 
-    result = await c2factory.deploy(execJSON.bytecode, execSalt);
+    result = await c2factory.deploy(execJSON.bytecode, execSalt, gasOptions);
     await result.wait();
     
-    result = await c2factory.deploy(appFactoryJSON.bytecode, factorySalt);
-    await sleep(25000);
+    result = await c2factory.deploy(appFactoryJSON.bytecode, factorySalt, gasOptions);
+    //await sleep(25000);
     await result.wait();
 
     //const deployedAppFactory = await factoryFactory.createDaoFactory(

@@ -61,15 +61,14 @@ module.exports = {
      },
      mumbai: {
       url: MUMBAI_API_URL,
-      accounts: [`0x${PRIVATE_KEY}`],
-      gasMultiplier: 3,
-      gasPrice: 1000000000 * 2
+      accounts: [`0x${PRIVATE_KEY}`]
+      //gasMultiplier: 3,
+      //gasPrice: 1000000000 * 2
     },
     polygon: {
       url: POLYGON_API_URL,
       accounts: [`0x${PRIVATE_KEY}`],
-      //gasMultiplier: 3,
-      //gasPrice: 1000000000 * 2
+      gasPrice: 1000000000 * 40
     }
    },
    etherscan: {

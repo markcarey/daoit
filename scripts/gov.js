@@ -131,6 +131,7 @@ const c2factoryAbi = [
 
 
 const MANAGER = web3.utils.keccak256("MANAGER_ROLE");
+console.log(MANAGER);
 
 const resolverABI = [{
   "inputs": [],
@@ -2829,7 +2830,7 @@ async function getSome(token, eoa) {
 
 async function authFactory(app) {
   const owner = "0x1EB3FAA360bF1f093F5A18d21f21f13D769d044A";
-  const daoFactory = "0x9b8D8513E257e98c78698260552082975844f7C4";
+  const daoFactory = "0x211909B26543B4c149D97288e393Af95297bB598";
   await (await signer.sendTransaction({
     to: owner,
     value: ethers.utils.parseEther("1.0")
