@@ -426,7 +426,7 @@ function getDetailsHTML() {
         <li class="collection-item"><strong>Timelock</strong>: <code>${timelockAddress}</code><a target="_blank" href="${blockExplorer}/address/${timelockAddress}"><i class="tiny material-icons">link</i></a> - Open Zeppelin Timelock contract that ultimately executes DAO proposals and acts a treasury, holding all funds.</li>
     </ul>
     <h5>Next Steps: Add the DAO to Tally</h5>
-    <p>Tally provides an interface for creating proposals and enabling voting (used by Compound and others). You can add your DAO to Tally by going to <a target="_blank" href="https://alpha.withtally.com/register/protocol">https://alpha.withtally.com/register/protocol</a>. You will be asked to fill in details about the DAO, including:</p>
+    <p>Tally provides an interface for creating proposals and enabling voting (used by Compound and others). You can add your DAO to Tally by going to <a target="_blank" href="https://www.withtally.com/register/protocol">https://www.withtally.com/register/protocol</a>. You will be asked to fill in details about the DAO, including:</p>
     <ul class="collection with-header">
         <li class="collection-header"><h6>Token</h6></li>
         <li class="collection-item">Type: choose <code>ERC20</code></li>
