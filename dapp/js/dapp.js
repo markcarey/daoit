@@ -335,7 +335,7 @@ $( document ).ready(function() {
         const tx = {
             'from': ethereum.selectedAddress,
             'to': factoryAddress,
-            'gasPrice': gas,
+            //'gasPrice': gas,
             'nonce': "" + nonce,
             'data': factory.methods.createDAOSuperApp(name, symbol, accepted, addr.WETH, addr.SuperHost, addr.cfa, addr.router).encodeABI()
         };
@@ -376,7 +376,7 @@ $( document ).ready(function() {
         const tx = {
             'from': ethereum.selectedAddress,
             'to': factoryAddress,
-            'gasPrice': gas,
+            //'gasPrice': gas,
             'nonce': "" + nonce,
             'data': factory.methods.createGoverance(daoTokenAddress, vetoable, votingPeriod).encodeABI()
         };
