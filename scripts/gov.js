@@ -7,7 +7,7 @@ const appFactoryJSON = require("../artifacts/contracts/DAOit.sol/DAOFactory.json
 //const govFactoryJSON = require("../artifacts/contracts/DAOit.sol/DAOGovernanceFactory.json");
 const superAppJSON = require("../artifacts/contracts/DAOSuperApp.sol/DAOSuperApp.json");
 
-const appFactoryAddress = "0xA110e05133521C86E82fF5D1D482344A46CDBDF9";
+const appFactoryAddress = "0xB9161669555a24BfC078a809BB5Cc4298b3f7EdF";
 //const govFactoryAddress = appFactoryAddress;
 
 const superAppAddress = "0xeA857995adBe6160713DfC116d83FEDDa125D6A6";
@@ -22,10 +22,10 @@ const execJSON = require("../artifacts/contracts/DAOit.sol/DAOExecutor.json");
 const appJSON = require("../artifacts/contracts/DAOSuperApp.sol/DAOSuperApp.json");
 
 var addr = {};
-var chain = "polygon";
+var chain = "mumbai";
 if (chain == "mumbai") {
   //Mumbai:
-  addr.router = "";
+  addr.router = "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506";
   addr.Resolver = "0x8C54C83FbDe3C59e59dd6E324531FB93d4F504d3";
   addr.SuperTokenFactory = "0x200657E2f123761662567A1744f9ACAe50dF47E6";
   addr.SuperHost = "0xEB796bdb90fFA0f28255275e16936D25d3418603";
@@ -33,13 +33,15 @@ if (chain == "mumbai") {
   addr.WETH = "0x3C68CE8504087f89c640D02d133646d98e64ddd9";
   addr.DAI = "0x001B3B4d0F3714Ca98ba10F6042DaEbF0B1B7b6F";
   addr.USDC = "0x2058A9D7613eEE744279e3856Ef0eAda5FCbaA7e";
+  addr.WETHx = "0x7dA8ba196E747eec76246726Dc5BFC8a459BCD3e";
 }
 if (chain == "polygon") {
   //Polygon
+  addr.router = "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506";
   addr.Resolver = "0xE0cc76334405EE8b39213E620587d815967af39C";
   addr.SuperTokenFactory = "0x2C90719f25B10Fc5646c82DA3240C76Fa5BcCF34";
   addr.SuperHost = "0x3E14dC1b13c488a8d5D310918780c983bD5982E7";
-  addr.cfa = ""; // TODO: fill this in
+  addr.cfa = "0x6EeE6060f715257b970700bc2656De21dEdF074C";
   addr.WETH = "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619";
   addr.DAI = "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063";
   addr.USDC = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174";
@@ -49,6 +51,7 @@ if (chain == "polygon") {
   addr.WBTC = "0x1bfd67037b42cf73acf2047067bd4f2c47d9bfd6";
   addr.WBTCx = "0x4086eBf75233e8492F1BCDa41C7f2A8288c2fB92";
   addr.DAIx = "0x1305F6B6Df9Dc47159D12Eb7aC2804d4A33173c2";
+
 }
 if (chain == "kovan") {
   //Kovan
@@ -2830,7 +2833,7 @@ async function getSome(token, eoa) {
 
 async function authFactory(app) {
   const owner = "0x1EB3FAA360bF1f093F5A18d21f21f13D769d044A";
-  const daoFactory = "0x211909B26543B4c149D97288e393Af95297bB598";
+  const daoFactory = "0xCadf370BE21A7B9733cfF49A992cBdc602cf26C2";
   await (await signer.sendTransaction({
     to: owner,
     value: ethers.utils.parseEther("1.0")
@@ -2874,7 +2877,7 @@ async function deployAppFactory() {
 
 //queue()
 //deployAppFactory()
-//createApp("The App28", "APP28", addr.WETHx)
+createApp("The App29", "APP29", addr.WETHx)
 //createGov(daoTokenAddress, true, 30)
  //setNonce()
 //openStream(addr.fDAIx, "1693766937669") 
@@ -2894,7 +2897,7 @@ async function deployAppFactory() {
 //deposit(addr.WETH, "20000000000000000000", PUBLIC_KEY)
 //deposit(addr.DAI, "20000000000000000000", PUBLIC_KEY)
 //grant(PUBLIC_KEY, "20000000000000000000")
-authFactory()
+//authFactory()
 
  //clone("The Backee", "EEE", '10000000000000000000000000000')
    .then(() => process.exit(0))

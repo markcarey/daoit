@@ -304,7 +304,7 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
         ISuperToken _superToken,
         address _agreementClass,
         bytes32 _agreementId,
-        bytes calldata /*_agreementData*/,
+        bytes calldata _agreementData,
         bytes calldata ,// _cbdata,
         bytes calldata _ctx
     )
@@ -314,7 +314,7 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
         onlyIfStreamsEnabled
         returns (bytes memory newCtx)
     {
-        address customer = _host.decodeCtx(_ctx).msgSender;
+        (address customer,) = abi.decode(_agreementData, (address, address));
         return _updateOutflow(_ctx, customer, _agreementId);
     }
 
@@ -322,7 +322,7 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
         ISuperToken _superToken,
         address _agreementClass,
         bytes32 _agreementId,
-        bytes calldata /*_agreementData*/,
+        bytes calldata _agreementData,
         bytes calldata ,//_cbdata,
         bytes calldata _ctx
     )
@@ -332,7 +332,7 @@ contract DAOSuperApp is IERC777RecipientUpgradeable, SuperAppBase, Initializable
         onlyIfStreamsEnabled
         returns (bytes memory newCtx)
     {
-        address customer = _host.decodeCtx(_ctx).msgSender;
+        (address customer,) = abi.decode(_agreementData, (address, address));
         return _updateOutflow(_ctx, customer, _agreementId);
     }
     function afterAgreementTerminated(
